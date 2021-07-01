@@ -1,0 +1,5 @@
+name: 'Distrobution Helper'
+type: module
+description: 'A module wrapping a generic service to help distrobution management'
+core_version_requirement: ^8.7.7 || ^9
+package: 'Custom'

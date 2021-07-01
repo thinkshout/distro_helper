@@ -1,0 +1,11 @@
+{
+    "name": "thinkshout/distro_helper",
+    "type": "drupal-module",
+    "description": "Distribution helper service",
+    "homepage": "https://www.drupal.org/project/distro_helper",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://github.com/thinkshout/distro_helper/issues",
+        "source": "https://github.com/thinkshout/distro_helper"
+    }
+}

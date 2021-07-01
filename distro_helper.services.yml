@@ -1,0 +1,7 @@
+services:
+  logger.channel.distro_helper:
+    parent: logger.channel_base
+    arguments: ['distro_helper']
+  distro_helper.updates:
+    class: Drupal\distro_helper\DistroHelperUpdates
+    arguments: ['@config.manager', '@config.storage.sync', '@config.storage']
