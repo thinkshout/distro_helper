@@ -52,14 +52,7 @@ class DistroHelperUpdates {
    * for targeted updates rather than this ham-handed version: this is only the
    * preferred method for including new configuration in updates.
    *
-   * The config factory for targeted updates, for example:
-   *
-   * $config = \Drupal::service('config.factory')->getEditable('node.type.page');
-   * if (!$config->isNew()) {
-   *   $config_data = $config->getRawData();
-   *   $config_data['name'] = 'Fantastic Page';
-   *   $config->setData($config_data)->save();
-   * }
+   * To do more targeted updates, use updateConfig.
    *
    * To use this function instead, indicate the module that has the new config,
    * the name of the config, and config directory (if not "install"). In order
@@ -151,6 +144,51 @@ class DistroHelperUpdates {
       $sync_collection = $sync_storage->createCollection($collection);
       $sync_collection->write($config_name, $active_collection->read($config_name));
     }
+  }
+
+  /**
+   * Helper function to do targeted updates of configuration.
+   *
+   * @param string $configName
+   *   The name of the configuration, like node.type.page, with no ".yml".
+   * @param string $elementKey
+   *   The path to the configuration element within the config, using : as a
+   *   separator. To set the UUID, you would just pass "UUID". To set a Block
+   *   label, you would pass "settings:label".
+   * @param string $module
+   *   Module machine name that has the config file with the new value.
+   * @param string $directory
+   *   Usually "install" but sometimes "optional".
+   *
+   * @return mixed
+   *   FALSE if the update failed, otherwise the updated configuration object.
+   */
+  public function updateConfig(string $configName, string $elementKey, string $module, string $directory = 'install') {
+    $newValue = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+
+    $config = \Drupal::service('config.factory')->getEditable($configName);
+    if ($config->isNew()) {
+      // Can't update nonexistent config.
+      return FALSE;
+    }
+    $config_data = $config->getRawData();
+    $target = &$config_data;
+    $elementPath = explode(':', $elementKey);
+    foreach ($elementPath as $step) {
+      if (isset($target[$step]) && isset($newValue[$step])) {
+        $target = &$target[$step];
+        $value = $newValue[$step];
+      }
+      else {
+        return FALSE;
+      }
+    }
+    $target = $newValue;
+    $config->setData($config_data)->save();
+
+    // If possible, immediately export the updated files.
+    $this->exportConfig($configName);
+    return $config;
   }
 
   /**
