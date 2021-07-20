@@ -151,10 +151,10 @@ class DistroHelperUpdates {
    *
    * @param string $configName
    *   The name of the configuration, like node.type.page, with no ".yml".
-   * @param string $elementKey
-   *   The path to the configuration element within the config, using : as a
-   *   separator. To set the UUID, you would just pass "UUID". To set a Block
-   *   label, you would pass "settings:label".
+   * @param array $elementKeys
+   *   An array of paths to the configuration elements within the config that
+   *   you want updated, using : as a separator. To set the UUID, you would just
+   *   pass ["UUID"]. To set a Block label, you would pass ["settings:label"].
    * @param string $module
    *   Module machine name that has the config file with the new value.
    * @param string $directory
@@ -163,7 +163,7 @@ class DistroHelperUpdates {
    * @return mixed
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
-  public function updateConfig(string $configName, string $elementKey, string $module, string $directory = 'install') {
+  public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
     $newValue = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
     $config = \Drupal::service('config.factory')->getEditable($configName);
@@ -172,18 +172,24 @@ class DistroHelperUpdates {
       return FALSE;
     }
     $config_data = $config->getRawData();
-    $target = &$config_data;
-    $elementPath = explode(':', $elementKey);
-    foreach ($elementPath as $step) {
-      if (isset($target[$step]) && isset($newValue[$step])) {
-        $target = &$target[$step];
-        $value = $newValue[$step];
+    foreach ($elementKeys as $elementKey) {
+      $target = &$config_data;
+      $elementPath = explode(':', $elementKey);
+      foreach ($elementPath as $step) {
+        if (isset($newValue[$step])) {
+          if (!isset($target[$step])) {
+            // This key doesn't exist in the old config -- add it:
+            $target[$step] = [];
+          }
+          $target = &$target[$step];
+          $newValue = $newValue[$step];
+        }
+        else {
+          return FALSE;
+        }
       }
-      else {
-        return FALSE;
-      }
+      $target = $newValue;
     }
-    $target = $newValue;
     $config->setData($config_data)->save();
 
     // If possible, immediately export the updated files.
