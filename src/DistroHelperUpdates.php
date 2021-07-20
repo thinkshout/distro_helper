@@ -65,7 +65,7 @@ class DistroHelperUpdates {
    * the name of the config, and config directory (if not "install"). In order
    * to perform updates, you must indicate it as a 4th argument ("TRUE").
    *
-   * @param string $config_name
+   * @param string $configName
    *   The name of the config (its file name with the '.yml' part).
    * @param string $module
    *   Module machine name that has the config files.
@@ -79,22 +79,15 @@ class DistroHelperUpdates {
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function installConfig(string $config_name, string $module, string $directory = 'install', bool $update = FALSE) {
+  public function installConfig(string $configName, string $module, string $directory = 'install', bool $update = FALSE) {
     $updated = [];
     $created = [];
 
     $config_manager = $this->configManager;
-    $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $config_name . '.yml';
-    $raw = file_get_contents($file);
-    if (empty($raw)) {
-      throw new \RuntimeException(sprintf('Config file not found at %s', $file));
-    }
-    $value = Yaml::decode($raw);
-    if (!is_array($value)) {
-      throw new \RuntimeException(sprintf('Invalid YAML file %s', $file));
-    }
+    $config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory);
+    $value = $config['value'];
 
-    $type = $config_manager->getEntityTypeIdByName(basename($file));
+    $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
     /** @var \Drupal\Core\Entity\EntityTypeManager $entity_manager */
     $entity_manager = $config_manager->getEntityTypeManager();
     $definition = $entity_manager->getDefinition($type);
@@ -115,7 +108,7 @@ class DistroHelperUpdates {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
       $entity = $entity_storage->createFromStorageRecord($value);
       // If new config exists in sync, match up the uuids.
-      $sync_config = $this->configStorageSync->read($config_name);
+      $sync_config = $this->configStorageSync->read($configName);
 
       if (!empty($sync_config['uuid'])) {
         $entity->set('uuid', $sync_config['uuid']);
@@ -124,7 +117,7 @@ class DistroHelperUpdates {
       $created[] = $id;
     }
     // If possible, immediately export the updated files.
-    $this->exportConfig($config_name);
+    $this->exportConfig($configName);
     return [
       'updated' => $updated,
       'created' => $created,
@@ -158,6 +151,32 @@ class DistroHelperUpdates {
       $sync_collection = $sync_storage->createCollection($collection);
       $sync_collection->write($config_name, $active_collection->read($config_name));
     }
+  }
+
+  /**
+   * Helper function to load up a yml config file from a module.
+   *
+   * @param string $configName
+   *   The name of the configuration, like node.type.page, with no ".yml".
+   * @param string $module
+   *   Module machine name that has the config file with the new value.
+   * @param string $directory
+   *   Usually "install" but sometimes "optional".
+   *
+   * @return array
+   *   An array representation of a yml file.
+   */
+  private static function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
+    $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
+    $raw = file_get_contents($file);
+    if (empty($raw)) {
+      throw new \RuntimeException(sprintf('Config file not found at %s', $file));
+    }
+    $value = Yaml::decode($raw);
+    if (!is_array($value)) {
+      throw new \RuntimeException(sprintf('Invalid YAML file %s', $file));
+    }
+    return ['value' => $value, 'file' => $file];
   }
 
 }
