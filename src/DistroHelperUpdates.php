@@ -7,9 +7,10 @@ use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Site\Settings;
 
 /**
- * Class DistroHelperUpdates.
+ * Provides a service to help with configuration management in distros.
  */
 class DistroHelperUpdates {
 
@@ -43,13 +44,12 @@ class DistroHelperUpdates {
     $this->configStorage = $config_storage;
   }
 
-
   /**
    * Helper function for managing new or changed configuration files.
    *
    * Use it in update hooks to install configuration from newly created or
-   * updated config files. Note that it is preferred to use the config factory for
-   * targeted updates rather than this ham-handed version: this is only the
+   * updated config files. Note that it is preferred to use the config factory
+   * for targeted updates rather than this ham-handed version: this is only the
    * preferred method for including new configuration in updates.
    *
    * The config factory for targeted updates, for example:
@@ -83,7 +83,6 @@ class DistroHelperUpdates {
     $updated = [];
     $created = [];
 
-    /** @var \Drupal\Core\Config\ConfigManagerInterface $config_manager */
     $config_manager = $this->configManager;
     $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $config_name . '.yml';
     $raw = file_get_contents($file);
@@ -140,7 +139,7 @@ class DistroHelperUpdates {
    */
   public function exportConfig($config_name) {
     // Get our sync directory.
-    $config_dir = \Drupal\Core\Site\Settings::get('config_sync_directory');
+    $config_dir = Settings::get('config_sync_directory');
     $directory = realpath($config_dir);
     if (!is_writable($directory)) {
       return;
