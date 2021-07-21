@@ -26,5 +26,5 @@ It works much like installConfig, but you need to pass in a "$targets" variable 
 Usage for this services is:
 
 ```
-\Drupal::service('distro_helper.updates')->installConfig($configid, $targets, $modulename, $dirname);
+\Drupal::service('distro_helper.updates')->updateConfig($configid, $targets, $modulename, $dirname);
 ```
