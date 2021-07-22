@@ -16,3 +16,15 @@ Usage for this services is:
 ```
 \Drupal::service('distro_helper.updates')->installConfig($configid, $modulename, $dirname);
 ```
+
+### updateConfig
+
+If you update configuration, but don't want to completely overwrite existing configuration on sites, use this method to do a targeted update of configuration.
+
+It works much like installConfig, but you need to pass in a "$targets" variable as well, which is an array of paths to the part of the configuration that you want to install, using '#' as a separator.
+
+Usage for this services is:
+
+```
+\Drupal::service('distro_helper.updates')->updateConfig($configid, $targets, $modulename, $dirname);
+```
