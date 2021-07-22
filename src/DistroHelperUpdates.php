@@ -153,7 +153,7 @@ class DistroHelperUpdates {
    *   The name of the configuration, like node.type.page, with no ".yml".
    * @param array $elementKeys
    *   An array of paths to the configuration elements within the config that
-   *   you want updated, using : as a separator. To set the UUID, you would just
+   *   you want updated, using # as a separator. To set the UUID, you would just
    *   pass ["UUID"]. To set a Block label, you would pass ["settings:label"].
    * @param string $module
    *   Module machine name that has the config file with the new value.
@@ -174,7 +174,7 @@ class DistroHelperUpdates {
     $config_data = $config->getRawData();
     foreach ($elementKeys as $elementKey) {
       $target = &$config_data;
-      $elementPath = explode(':', $elementKey);
+      $elementPath = explode('#', $elementKey);
       foreach ($elementPath as $step) {
         if (isset($newValue[$step])) {
           if (!isset($target[$step])) {
