@@ -164,7 +164,7 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $newValue = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $ymlConfig = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
     $config = \Drupal::service('config.factory')->getEditable($configName);
     if ($config->isNew()) {
@@ -173,6 +173,7 @@ class DistroHelperUpdates {
     }
     $config_data = $config->getRawData();
     foreach ($elementKeys as $elementKey) {
+      $newValue = $ymlConfig;
       $target = &$config_data;
       $elementPath = explode('#', $elementKey);
       foreach ($elementPath as $step) {
