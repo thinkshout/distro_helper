@@ -154,7 +154,7 @@ class DistroHelperUpdates {
    * @param array $elementKeys
    *   An array of paths to the configuration elements within the config that
    *   you want updated, using # as a separator. To set the UUID, you would just
-   *   pass ["UUID"]. To set a Block label, you would pass ["settings:label"].
+   *   pass ["UUID"]. To set a Block label, you would pass ["settings#label"].
    * @param string $module
    *   Module machine name that has the config file with the new value.
    * @param string $directory
