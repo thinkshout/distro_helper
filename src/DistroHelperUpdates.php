@@ -135,9 +135,6 @@ class DistroHelperUpdates {
     $sync_storage = $this->configStorageSync;
     $active_storage = $this->configStorage;
 
-    // Find out which config was saved.
-    $sync_storage->write($config_name, $active_storage->read($config_name));
-
     // Export configuration collections.
     foreach ($active_storage->getAllCollectionNames() as $collection) {
       $active_collection = $active_storage->createCollection($collection);
