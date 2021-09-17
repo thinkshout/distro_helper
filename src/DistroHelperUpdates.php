@@ -135,11 +135,30 @@ class DistroHelperUpdates {
     $sync_storage = $this->configStorageSync;
     $active_storage = $this->configStorage;
 
-    // Export configuration collections.
-    foreach ($active_storage->getAllCollectionNames() as $collection) {
-      $active_collection = $active_storage->createCollection($collection);
-      $sync_collection = $sync_storage->createCollection($collection);
-      $sync_collection->write($config_name, $active_collection->read($config_name));
+    if ($this_file_in_active_storage = $active_storage->read($config_name)) {
+
+      // Find out which config was saved.
+      $sync_storage->write($config_name, $active_storage->read($config_name));
+
+      // Export configuration collections.
+      foreach ($active_storage->getAllCollectionNames() as $collection) {
+        $active_collection = $active_storage->createCollection($collection);
+        $sync_collection = $sync_storage->createCollection($collection);
+        if ($this_file_in_active_storage = $active_collection->read($config_name)) {
+          $sync_collection->write($config_name, $active_collection->read($config_name));
+        }
+        else {
+          \Drupal::logger('distro_helper')->error(
+            'Could not write the @directory file. Did it successfully save to the database?',
+            ['@directory' => $sync_collection->getFilePath($config_name)]);
+        }
+      }
+    }
+    else {
+      // Log: Could not write $config_name to the config sync directory. Did it successfully save to the database?
+      \Drupal::logger('distro_helper')->error(
+        'Could not write the @directory file. Did it successfully save to the database?',
+        ['@directory' => $sync_storage->getFilePath($config_name)]);
     }
   }
 
