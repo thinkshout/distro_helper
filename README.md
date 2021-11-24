@@ -1,5 +1,20 @@
 ## What this module does
-Provides a service "distro_helper.updates" with the following methods:
+Provides a service "distro_helper.updates" with the following methods. Each of
+these methods writes configuration to the database and then writes the config
+out to the file system, if using file-based-config.
+
+This can produce confusing warnings on your server if file-based-config writing
+is not allowed there. You can disable this behavior in settings.php by adding:
+```php
+$config['distro_helper']['disable_write'] = TRUE;
+```
+
+For example, if using Pantheon, you might add it inside this conditional:
+```php
+if (isset($_ENV['PANTHEON_ENVIRONMENT'])) {
+  $config['distro_helper']['disable_write'] = TRUE;
+}
+```
 
 ### installConfig
 
@@ -13,7 +28,7 @@ If you run an update hook multiple times for testing purposes or on multiple env
 
 Usage for this services is:
 
-```
+```php
 \Drupal::service('distro_helper.updates')->installConfig($configid, $modulename, $dirname);
 ```
 
@@ -25,6 +40,6 @@ It works much like installConfig, but you need to pass in a "$targets" variable 
 
 Usage for this services is:
 
-```
+```php
 \Drupal::service('distro_helper.updates')->updateConfig($configid, $targets, $modulename, $dirname);
 ```

@@ -124,6 +124,9 @@ class DistroHelperUpdates {
    *   The config to read.
    */
   public function exportConfig($config_name) {
+    if ($this->configManager->getConfigFactory()->get('distro_helper')->get('disable_write')) {
+      return;
+    }
     // Get our sync directory.
     $config_dir = Settings::get('config_sync_directory');
     $directory = realpath($config_dir);
