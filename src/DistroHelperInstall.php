@@ -45,7 +45,7 @@ class DistroHelperInstall {
   }
 
   /**
-   * Helper function to update the uuids from the config folder to match the just-installed site.
+   * Helper function to update the uuids from the just-installed site to match the config folder.
    *
    * @param string $configName
    *   The name of the config (its file name with the '.yml' part).
@@ -63,14 +63,16 @@ class DistroHelperInstall {
    */
   public function syncUUIDs($configs) {
     // Foreach config in the system.
-    foreach($configs as $config) {
-      $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
-      $entity = $entity_storage->createFromStorageRecord($value);
+    foreach($configs as $configName) {
       // If new config exists in sync, match up the uuids.
       $sync_config = $this->configStorageSync->read($configName);
+      $entity = \Drupal::service('config.factory')->getEditable($configName);
 
       if (!empty($sync_config['uuid'])) {
         $entity->set('uuid', $sync_config['uuid']);
+      }
+      if (isset($sync_config['_core']['default_config_hash'])) {
+        $entity->set('_core', $sync_config['_core']);
       }
       $entity->save();
     }
