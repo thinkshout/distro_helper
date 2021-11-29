@@ -77,6 +77,4 @@ class DistroHelperInstall {
       $entity->save();
     }
   }
-
-
 }
