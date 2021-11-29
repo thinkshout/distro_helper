@@ -7,4 +7,4 @@ services:
     arguments: ['@config.manager', '@config.storage.sync', '@config.storage']
   distro_helper.install:
     class: Drupal\distro_helper\DistroHelperInstall
-    arguments: [ '@config.manager', '@config.storage.sync', '@config.storage' ]
+    arguments: [ '@config.factory', '@config.storage.sync' ]

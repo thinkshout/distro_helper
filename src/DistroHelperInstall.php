@@ -2,6 +2,7 @@
 
 namespace Drupal\distro_helper;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Config\CachedStorage;
@@ -17,9 +18,9 @@ class DistroHelperInstall {
   /**
    * Drupal\Core\Config\ConfigManagerInterface definition.
    *
-   * @var \Drupal\Core\Config\ConfigManagerInterface
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $configManager;
+  protected $configFactory;
 
   /**
    * Drupal\Core\Config\StorageInterface definition.
@@ -29,19 +30,11 @@ class DistroHelperInstall {
   protected $configStorageSync;
 
   /**
-   * Drupal\Core\Config\CachedStorage definition.
-   *
-   * @var \Drupal\Core\Config\CachedStorage
-   */
-  protected $configStorage;
-
-  /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage) {
-    $this->configManager = $config_manager;
+  public function __construct(ConfigFactoryInterface $config_factory, StorageInterface $config_storage_sync) {
+    $this->configFactory = $config_factory;
     $this->configStorageSync = $config_storage_sync;
-    $this->configStorage = $config_storage;
   }
 
   /**
@@ -66,7 +59,7 @@ class DistroHelperInstall {
     foreach($configs as $configName) {
       // If new config exists in sync, match up the uuids.
       $sync_config = $this->configStorageSync->read($configName);
-      $entity = \Drupal::service('config.factory')->getEditable($configName);
+      $entity = $this->configFactory->getEditable($configName);
 
       if (!empty($sync_config['uuid'])) {
         $entity->set('uuid', $sync_config['uuid']);
