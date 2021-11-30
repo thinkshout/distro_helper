@@ -124,6 +124,9 @@ class DistroHelperUpdates {
    *   The config to read.
    */
   public function exportConfig($config_name) {
+    if ($this->configManager->getConfigFactory()->get('distro_helper')->get('disable_write')) {
+      return;
+    }
     // Get our sync directory.
     $config_dir = Settings::get('config_sync_directory');
     $directory = realpath($config_dir);
@@ -135,7 +138,7 @@ class DistroHelperUpdates {
     $sync_storage = $this->configStorageSync;
     $active_storage = $this->configStorage;
 
-    if ($this_file_in_active_storage = $active_storage->read($config_name)) {
+    if ($active_storage->read($config_name)) {
 
       // Find out which config was saved.
       $sync_storage->write($config_name, $active_storage->read($config_name));
@@ -144,20 +147,20 @@ class DistroHelperUpdates {
       foreach ($active_storage->getAllCollectionNames() as $collection) {
         $active_collection = $active_storage->createCollection($collection);
         $sync_collection = $sync_storage->createCollection($collection);
-        if ($this_file_in_active_storage = $active_collection->read($config_name)) {
+        if ( $active_collection->read($config_name)) {
           $sync_collection->write($config_name, $active_collection->read($config_name));
         }
         else {
-          \Drupal::logger('distro_helper')->error(
+          \Drupal::logger('distro_helper')->warning(
             'Could not write the @directory file. Did it successfully save to the database?',
             ['@directory' => $sync_collection->getFilePath($config_name)]);
         }
       }
     }
     else {
-      // Log: Could not write $config_name to the config sync directory. Did it successfully save to the database?
-      \Drupal::logger('distro_helper')->error(
-        'Could not write the @directory file. Did it successfully save to the database?',
+      // Log: Could not read $config_name from the config sync directory. Did it successfully save to the database?
+      \Drupal::logger('distro_helper')->warning(
+        'Could not read the @directory file. Is the configuration new?',
         ['@directory' => $sync_storage->getFilePath($config_name)]);
     }
   }
