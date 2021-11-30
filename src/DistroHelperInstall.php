@@ -35,11 +35,10 @@ class DistroHelperInstall {
   /**
    * Update the uuids from the just-installed site to match the config folder.
    *
-   * @param string $configs
-   *   The name of the config (its file name with the '.yml' part).
+   * @param array $configs
+   *   The a set of configs as an array (leave off the .yml).
    */
   public function syncUuids($configs) {
-    // Foreach config in the system.
     foreach ($configs as $configName) {
       // If new config exists in sync, match up the uuids.
       $sync_config = $this->configStorageSync->read($configName);
