@@ -142,20 +142,6 @@ class DistroHelperUpdates {
 
       // Find out which config was saved.
       $sync_storage->write($config_name, $active_storage->read($config_name));
-
-      // Export configuration collections.
-      foreach ($active_storage->getAllCollectionNames() as $collection) {
-        $active_collection = $active_storage->createCollection($collection);
-        $sync_collection = $sync_storage->createCollection($collection);
-        if ( $active_collection->read($config_name)) {
-          $sync_collection->write($config_name, $active_collection->read($config_name));
-        }
-        else {
-          \Drupal::logger('distro_helper')->warning(
-            'Could not write the @directory file. Did it successfully save to the database?',
-            ['@directory' => $sync_collection->getFilePath($config_name)]);
-        }
-      }
     }
     else {
       // Log: Could not read $config_name from the config sync directory. Did it successfully save to the database?
