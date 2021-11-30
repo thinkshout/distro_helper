@@ -3,8 +3,8 @@ Provides a service "distro_helper.updates" with the following methods. Each of
 these methods writes configuration to the database and then writes the config
 out to the file system, if using file-based-config.
 
-This can produce confusing warnings on your server if file-based-config writing
-is not allowed there. You can disable this behavior in settings.php by adding:
+You can disable the "writing the config out to the file system" behavior in
+settings.php by adding:
 ```php
 $config['distro_helper']['disable_write'] = TRUE;
 ```
@@ -15,6 +15,8 @@ if (isset($_ENV['PANTHEON_ENVIRONMENT'])) {
   $config['distro_helper']['disable_write'] = TRUE;
 }
 ```
+Note that this is likely unnecessary, since this module checks to see if the
+file-based-config directory is writable before attempting a write, anyway.
 
 ### installConfig
 
