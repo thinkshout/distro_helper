@@ -18,7 +18,7 @@ if (isset($_ENV['PANTHEON_ENVIRONMENT'])) {
 Note that this is likely unnecessary, since this module checks to see if the
 file-based-config directory is writable before attempting a write, anyway.
 
-### installConfig
+### installConfig (distro_helper.updates)
 
 If you add new or updated configuration to a module's config folder, you need to provide an update hook to the site to let it know to pull in that new configuration.
 
@@ -34,7 +34,7 @@ Usage for this services is:
 \Drupal::service('distro_helper.updates')->installConfig($configid, $modulename, $dirname);
 ```
 
-### updateConfig
+### updateConfig (distro_helper.updates)
 
 If you update configuration, but don't want to completely overwrite existing configuration on sites, use this method to do a targeted update of configuration.
 
@@ -44,4 +44,20 @@ Usage for this services is:
 
 ```php
 \Drupal::service('distro_helper.updates')->updateConfig($configid, $targets, $modulename, $dirname);
+```
+
+### syncUuids (distro_helper.install)
+
+Pushes uuids from your file based configuration into your site configuration. This is intended for fresh site installs where you want to see how your installed config differs from the config you get when you export a persistent database. The primary usage is to do this for ALL site config, but it is built to allow for a subset of configurations to be "synced" as well.
+
+Usage is:
+
+```
+\Drupal::service('distro_helper.install')->syncUUIDs($configs);
+```
+
+The standard way to call it, passing in ALL the file-based configs, is easy with the 'config.storage.export' service:
+
+```
+\Drupal::service('distro_helper.install')->syncUUIDs(\Drupal::service('config.storage.export')->listAll());
 ```

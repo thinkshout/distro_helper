@@ -5,3 +5,6 @@ services:
   distro_helper.updates:
     class: Drupal\distro_helper\DistroHelperUpdates
     arguments: ['@config.manager', '@config.storage.sync', '@config.storage']
+  distro_helper.install:
+    class: Drupal\distro_helper\DistroHelperInstall
+    arguments: [ '@config.factory', '@config.storage.sync' ]
