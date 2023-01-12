@@ -169,31 +169,16 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $ymlConfig = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $install_profile_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
     $config = \Drupal::service('config.factory')->getEditable($configName);
     if ($config->isNew()) {
       // Can't update nonexistent config.
       return FALSE;
     }
-    $config_data = $config->getRawData();
-    foreach ($elementKeys as $elementKey) {
-      $newValue = $ymlConfig;
-      $target = &$config_data;
-      $elementPath = explode('#', $elementKey);
-      foreach ($elementPath as $step) {
-        if (isset($newValue[$step])) {
-          if (!isset($target[$step])) {
-            // This key doesn't exist in the old config -- add it:
-            $target[$step] = [];
-          }
-          $target = &$target[$step];
-          $newValue = $newValue[$step];
-        }
-      }
-      $target = $newValue;
-    }
-    $config->setData($config_data)->save();
+    $active_config = $config->getRawData();
+    $active_config = $this->syncActiveConfigFromSavedConfigByKeys($active_config, $install_profile_config, $elementKeys);
+    $config->setData($active_config)->save();
 
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
@@ -226,4 +211,37 @@ class DistroHelperUpdates {
     return ['value' => $value, 'file' => $file];
   }
 
+  private function syncActiveConfigFromSavedConfigByKeys($config_data, $new_config, $elementKeys) {
+    foreach ($elementKeys as $elementKey) {
+      $newValue = $new_config;
+      $target = &$config_data;
+      $elementPath = explode('#', $elementKey);
+      $depth = 0;
+      foreach ($elementPath as $step) {
+        if (isset($newValue[$step])) {
+          if (!isset($target[$step])) {
+            // This key doesn't exist in the old config -- add it:
+            $target[$step] = [];
+          }
+          $target = &$target[$step];
+          $newValue = $newValue[$step];
+          $depth++;
+        }
+        else {
+          if (isset($target[$step])) {
+            unset($target[$step]);
+            $depth++;
+          }
+        }
+      }
+      if ($depth < count($elementPath)) {
+        // If this is the case, we didn't find the full path given in our new config.
+      }
+      else {
+        $target = $newValue;
+      }
+    }
+
+    return $config_data;
+  }
 }
