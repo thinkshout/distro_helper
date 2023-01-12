@@ -211,6 +211,19 @@ class DistroHelperUpdates {
     return ['value' => $value, 'file' => $file];
   }
 
+  /**
+   * Syncs nested values in the 1st array with the same values from the 2nd.
+   *
+   * @param $config_data
+   *   The first array, the active config.
+   * @param $new_config
+   *   The second array, the proposed config.
+   * @param $elementKeys
+   *   A flattened array representing the nested field to update.
+   *
+   * @return array
+   *   The updated array.
+   */
   private function syncActiveConfigFromSavedConfigByKeys($config_data, $new_config, $elementKeys) {
     foreach ($elementKeys as $elementKey) {
       $newValue = $new_config;
