@@ -190,9 +190,6 @@ class DistroHelperUpdates {
           $target = &$target[$step];
           $newValue = $newValue[$step];
         }
-        else {
-          return FALSE;
-        }
       }
       $target = $newValue;
     }
