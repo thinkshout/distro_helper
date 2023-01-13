@@ -8,7 +8,6 @@ use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
-use Psr\Log\LoggerInterface;
 
 /**
  * Provides a service to help with configuration management in distros.
