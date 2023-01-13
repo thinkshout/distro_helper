@@ -8,6 +8,7 @@ use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -45,7 +46,7 @@ class DistroHelperUpdates {
   /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactory $logger) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactoryInterface $logger) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
