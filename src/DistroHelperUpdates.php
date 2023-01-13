@@ -227,13 +227,13 @@ class DistroHelperUpdates {
    *   The first array, the active config.
    * @param array $new_config
    *   The second array, the proposed config.
-   * @param string $elementKeys
+   * @param array $elementKeys
    *   A flattened array representing the nested field to update.
    *
    * @return array
    *   The updated array.
    */
-  public function syncActiveConfigFromSavedConfigByKeys(array $config_data, array $new_config, string $elementKeys) {
+  public function syncActiveConfigFromSavedConfigByKeys(array $config_data, array $new_config, array $elementKeys) {
     foreach ($elementKeys as $elementKey) {
       $newValue = $new_config;
       $target = &$config_data;
