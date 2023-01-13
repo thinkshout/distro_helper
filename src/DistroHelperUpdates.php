@@ -224,7 +224,7 @@ class DistroHelperUpdates {
    * @return array
    *   The updated array.
    */
-  private function syncActiveConfigFromSavedConfigByKeys($config_data, $new_config, $elementKeys) {
+  public function syncActiveConfigFromSavedConfigByKeys($config_data, $new_config, $elementKeys) {
     foreach ($elementKeys as $elementKey) {
       $newValue = $new_config;
       $target = &$config_data;
@@ -242,13 +242,16 @@ class DistroHelperUpdates {
         }
         else {
           if (isset($target[$step])) {
-            unset($target[$step]);
+            $newValue = NULL;
             $depth++;
           }
         }
       }
       if ($depth < count($elementPath)) {
         // If this is the case, we didn't find the full path given in our new config.
+      }
+      elseif ($newValue === NULL) {
+        unset($target[$step]);
       }
       else {
         $target = $newValue;
