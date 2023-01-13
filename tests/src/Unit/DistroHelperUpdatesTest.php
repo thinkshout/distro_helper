@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
+use Drupal\Core\Logger\LoggerChannelFactory;
 
 /**
  * Simple test to ensure that asserts pass.
