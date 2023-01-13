@@ -24,7 +24,7 @@ jobs:
             export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
             composer self-update --2
             cd drupal
-            composer install
+            COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             composer code-sniff
             ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests/src/Unit/
 workflows:
