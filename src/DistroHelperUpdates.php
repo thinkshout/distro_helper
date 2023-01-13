@@ -260,4 +260,5 @@ class DistroHelperUpdates {
 
     return $config_data;
   }
+
 }
