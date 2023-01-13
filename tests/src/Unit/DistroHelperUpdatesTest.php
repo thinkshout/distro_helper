@@ -21,9 +21,14 @@ class DistroHelperUpdatesTest extends UnitTestCase {
    *
    * @var \Drupal\distro_helper\DistroHelperUpdates
    */
-  protected $distro_helper_update;
+  protected $distroHelperUpdates;
 
-  protected array $yml_old = [
+  /**
+   * The original nursery rhyme.
+   *
+   * @var array
+   */
+  protected array $ymlOld = [
     'this_little_piggy' => [
       'went to the market' => TRUE,
       'had roast beef' => TRUE,
@@ -39,7 +44,12 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ],
   ];
 
-  protected array $yml_new = [
+  /**
+   * The new nursery rhyme.
+   *
+   * @var array
+   */
+  protected array $ymlNew = [
     'this_little_piggy' => [
       'wore his mask to the market' => TRUE,
       'had impossible beef' => TRUE,
@@ -57,22 +67,21 @@ class DistroHelperUpdatesTest extends UnitTestCase {
   ];
 
   /**
-   * Before a test method is run, setUp() is invoked.
-   * Create new unit object.
+   * {@inheritdoc}
    */
   public function setUp(): void {
     $config_manager = $this->prophesize(ConfigManagerInterface::class);
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);
-    $this->distro_helper_update = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal());
+    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal());
   }
 
   /**
-   *
+   * @covers ::syncActiveConfigFromSavedConfigByKeys
    */
   public function testSyncActiveConfigFromSavedConfigByKeys() {
     // Test: Adding a new value.
-    $adding_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['that_little_piggy#gave a good tip']);
+    $adding_a_value = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['that_little_piggy#gave a good tip']);
     $this->assertEquals($adding_a_value, [
       'this_little_piggy' => [
         'went to the market' => TRUE,
@@ -91,7 +100,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ], 'Added a value to the old array.');
 
     // Test: Removing a value.
-    $removing_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['the_final_little_piggy#went wee wee wee wee#distance']);
+    $removing_a_value = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['the_final_little_piggy#went wee wee wee wee#distance']);
     $this->assertEquals($removing_a_value, [
       'this_little_piggy' => [
         'went to the market' => TRUE,
@@ -107,7 +116,10 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ], 'Removed a value from the old array.');
 
     // Test: Updating a value.
-    $replacing_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['this_little_piggy#had roast beef', 'this_little_piggy#had impossible beef']);
+    $replacing_a_value = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, [
+      'this_little_piggy#had roast beef',
+      'this_little_piggy#had impossible beef',
+    ]);
     $this->assertEquals($replacing_a_value, [
       'this_little_piggy' => [
         'went to the market' => TRUE,
@@ -125,16 +137,15 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ], 'Replaced a value in the old array.');
 
     // Test: Trying to update a path that does not exist.
-    $bad_update = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['the_final_little_piggy#went weeeeee all the way home#distance']);
-    $this->assertEquals($bad_update, $this->yml_old, 'Tried to update a non-existent path, old array unchanged.');
+    $bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['the_final_little_piggy#went weeeeee all the way home#distance']);
+    $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, old array unchanged.');
   }
 
   /**
-   * Once test method has finished running, whether it succeeded or failed, tearDown() will be invoked.
-   * Unset the $unit object.
+   * {@inheritdoc}
    */
   protected function tearDown(): void {
-    unset($this->distro_helper_update);
+    unset($this->distroHelperUpdates);
   }
 
 }

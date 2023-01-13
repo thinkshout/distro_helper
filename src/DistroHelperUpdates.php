@@ -8,6 +8,7 @@ use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -36,12 +37,20 @@ class DistroHelperUpdates {
   protected $configStorage;
 
   /**
+   * A logger instance.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerInterface $logger) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
+    $this->logger = $logger;
   }
 
   /**
@@ -139,13 +148,13 @@ class DistroHelperUpdates {
     $active_storage = $this->configStorage;
 
     if ($active_storage->read($config_name)) {
-
       // Find out which config was saved.
       $sync_storage->write($config_name, $active_storage->read($config_name));
     }
     else {
-      // Log: Could not read $config_name from the config sync directory. Did it successfully save to the database?
-      \Drupal::logger('distro_helper')->warning(
+      // Log: Could not read $config_name from the config sync directory.
+      // Is it new?
+      $this->logger->warning(
         'Could not read the @directory file. Is the configuration new?',
         ['@directory' => $sync_storage->getFilePath($config_name)]);
     }
@@ -171,7 +180,7 @@ class DistroHelperUpdates {
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
     $install_profile_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
-    $config = \Drupal::service('config.factory')->getEditable($configName);
+    $config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($config->isNew()) {
       // Can't update nonexistent config.
       return FALSE;
@@ -214,17 +223,17 @@ class DistroHelperUpdates {
   /**
    * Syncs nested values in the 1st array with the same values from the 2nd.
    *
-   * @param $config_data
+   * @param array $config_data
    *   The first array, the active config.
-   * @param $new_config
+   * @param array $new_config
    *   The second array, the proposed config.
-   * @param $elementKeys
+   * @param string $elementKeys
    *   A flattened array representing the nested field to update.
    *
    * @return array
    *   The updated array.
    */
-  public function syncActiveConfigFromSavedConfigByKeys($config_data, $new_config, $elementKeys) {
+  public function syncActiveConfigFromSavedConfigByKeys(array $config_data, array $new_config, string $elementKeys) {
     foreach ($elementKeys as $elementKey) {
       $newValue = $new_config;
       $target = &$config_data;
@@ -248,7 +257,8 @@ class DistroHelperUpdates {
         }
       }
       if ($depth < count($elementPath)) {
-        // If this is the case, we didn't find the full path given in our new config.
+        // @todo If this is the case, we didn't find the full path given in our
+        // new config. Throw message?
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
