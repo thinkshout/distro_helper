@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: thinkshout/nginx-php-fpm:php74
+        environment:
+          WEBROOT: /var/www/html/distro_helper/drupal/web
+          GIT_EMAIL: "ci@thinkshout.com"
+          GIT_NAME: "ThinkShout CI Bot"
+          IS_CIRCLE: TRUE
+        command: [ "/start.sh" ]
+      - image: mariadb:10.4
+        environment:
+          MYSQL_RANDOM_ROOT_PASSWORD: 1
+          MYSQL_DATABASE: circletest
+          MYSQL_USER: drupal
+          MYSQL_PASSWORD: drupal
+    working_directory: /var/www/html/distro_helper
+    steps:
+      - checkout
+      - run:
+          name: Test site install works.
+          command: |
+            export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
+            composer self-update --2
+            cd drupal
+            COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
+            ./vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,info,txt,md --ignore=node_modules,bower_components,vendor ./web/profiles/contrib/wri_sites/modules
+            ./vendor/bin/phpcs --standard=DrupalPractice --extensions=php,module,inc,install,test,profile,theme,info,txt,md --ignore=node_modules,bower_components,vendor ./web/profiles/contrib/wri_sites/modules
+            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests/src/Unit/
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
