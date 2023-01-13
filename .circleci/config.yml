@@ -19,7 +19,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Test site install works.
+          name: Code sniffer and unit tests.
           command: |
             export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
             composer self-update --2
