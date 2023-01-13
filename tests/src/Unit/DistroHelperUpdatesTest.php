@@ -10,6 +10,7 @@ use Drupal\distro_helper\DistroHelperUpdates;
 
 /**
  * Simple test to ensure that asserts pass.
+ *
  * @coversDefaultClass \Drupal\distro_helper\DistroHelperUpdates
  * @group distro_helper
  */
@@ -25,11 +26,11 @@ class DistroHelperUpdatesTest extends UnitTestCase {
   protected array $yml_old = [
     'this_little_piggy' => [
       'went to the market' => TRUE,
-      'had roast beef'=> TRUE,
+      'had roast beef' => TRUE,
     ],
     'that_little_piggy' => [
-      'stayed home'=> TRUE,
-      'had none'=> TRUE,
+      'stayed home' => TRUE,
+      'had none' => TRUE,
     ],
     'the_final_little_piggy' => [
       'went wee wee wee wee' => [
@@ -50,8 +51,8 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ],
     'the_final_little_piggy' => [
       'went wee wee wee wee' => [
-        'and met their step goal'
-      ]
+        'and met their step goal',
+      ],
     ],
   ];
 
@@ -66,18 +67,21 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $this->distro_helper_update = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal());
   }
 
+  /**
+   *
+   */
   public function testSyncActiveConfigFromSavedConfigByKeys() {
     // Test: Adding a new value.
     $adding_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['that_little_piggy#gave a good tip']);
     $this->assertEquals($adding_a_value, [
       'this_little_piggy' => [
-        'went to the market'=> TRUE,
-        'had roast beef'=> TRUE,
+        'went to the market' => TRUE,
+        'had roast beef' => TRUE,
       ],
       'that_little_piggy' => [
-        'stayed home'=> TRUE,
-        'had none'=> TRUE,
-        'gave a good tip'=> TRUE,
+        'stayed home' => TRUE,
+        'had none' => TRUE,
+        'gave a good tip' => TRUE,
       ],
       'the_final_little_piggy' => [
         'went wee wee wee wee' => [
@@ -90,12 +94,12 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $removing_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['the_final_little_piggy#went wee wee wee wee#distance']);
     $this->assertEquals($removing_a_value, [
       'this_little_piggy' => [
-        'went to the market'=> TRUE,
-        'had roast beef'=> TRUE,
+        'went to the market' => TRUE,
+        'had roast beef' => TRUE,
       ],
       'that_little_piggy' => [
-        'stayed home'=> TRUE,
-        'had none'=> TRUE,
+        'stayed home' => TRUE,
+        'had none' => TRUE,
       ],
       'the_final_little_piggy' => [
         'went wee wee wee wee' => [],
@@ -103,15 +107,15 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ], 'Removed a value from the old array.');
 
     // Test: Updating a value.
-    $replacing_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['this_little_piggy#had roast beef','this_little_piggy#had impossible beef']);
+    $replacing_a_value = $this->distro_helper_update->syncActiveConfigFromSavedConfigByKeys($this->yml_old, $this->yml_new, ['this_little_piggy#had roast beef', 'this_little_piggy#had impossible beef']);
     $this->assertEquals($replacing_a_value, [
       'this_little_piggy' => [
-        'went to the market'=> TRUE,
-        'had impossible beef'=> TRUE,
+        'went to the market' => TRUE,
+        'had impossible beef' => TRUE,
       ],
       'that_little_piggy' => [
-        'stayed home'=> TRUE,
-        'had none'=> TRUE,
+        'stayed home' => TRUE,
+        'had none' => TRUE,
       ],
       'the_final_little_piggy' => [
         'went wee wee wee wee' => [

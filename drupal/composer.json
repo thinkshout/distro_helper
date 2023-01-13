@@ -26,6 +26,16 @@
         "drupal/core-dev": "^9.1",
         "phpspec/prophecy-phpunit": "^2"
     },
+    "scripts": {
+        "code-sniff": [
+            "./vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor,drupal ..",
+            "./vendor/bin/phpcs --standard=DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor,drupal .."
+        ],
+        "code-sniff-fix": [
+            "./vendor/bin/phpcbf --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor,drupal ..",
+            "./vendor/bin/phpcbf --standard=DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor,drupal .."
+        ]
+    },
     "conflict": {
         "drupal/drupal": "*"
     },
