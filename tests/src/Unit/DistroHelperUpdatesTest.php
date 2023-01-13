@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\distro_helper\DistroHelperUpdates;
+namespace Drupal\Tests\distro_helper\Unit;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
