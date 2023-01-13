@@ -39,14 +39,14 @@ class DistroHelperUpdates {
   /**
    * A logger instance.
    *
-   * @var \Psr\Log\LoggerInterface
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
    */
   protected $logger;
 
   /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerInterface $logger) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactory $logger) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
