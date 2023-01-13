@@ -50,7 +50,7 @@ class DistroHelperUpdates {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
-    $this->logger = $logger;
+    $this->logger = $logger->get('distro_helper');
   }
 
   /**

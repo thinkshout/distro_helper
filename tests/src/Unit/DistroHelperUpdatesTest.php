@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
+use Psr\Log\LoggerInterface;
 
 /**
  * Simple test to ensure that asserts pass.
@@ -73,7 +74,8 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $config_manager = $this->prophesize(ConfigManagerInterface::class);
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);
-    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal());
+    $logger = $this->prophesize(LoggerInterface::class);
+    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $logger->reveal());
   }
 
   /**
