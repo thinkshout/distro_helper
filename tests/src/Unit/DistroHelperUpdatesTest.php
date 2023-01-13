@@ -141,6 +141,28 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     // Test: Trying to update a path that does not exist.
     $bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['the_final_little_piggy#went weeeeee all the way home#distance']);
     $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, old array unchanged.');
+
+    // Test: Trying to update a path that does not exist AND real paths.
+    $partially_bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, [
+      'the_final_little_piggy#went weeeeee all the way home#distance',
+      'this_little_piggy#had roast beef',
+      'this_little_piggy#had impossible beef',
+    ]);
+    $this->assertEquals($partially_bad_update, [
+      'this_little_piggy' => [
+        'went to the market' => TRUE,
+        'had impossible beef' => TRUE,
+      ],
+      'that_little_piggy' => [
+        'stayed home' => TRUE,
+        'had none' => TRUE,
+      ],
+      'the_final_little_piggy' => [
+        'went wee wee wee wee' => [
+          'distance' => 'all the way home.',
+        ],
+      ],
+    ], 'Part of a bad update succeeded.');
   }
 
   /**
