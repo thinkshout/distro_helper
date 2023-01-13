@@ -5,7 +5,6 @@ namespace Drupal\Tests\distro_helper\Unit;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
-use Prophecy\Argument;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
 

@@ -7,14 +7,5 @@
     "support": {
         "issues": "https://github.com/thinkshout/distro_helper/issues",
         "source": "https://github.com/thinkshout/distro_helper"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "9.5.x-dev",
-        "drupal/core-dev": "^9.0"
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
     }
 }
