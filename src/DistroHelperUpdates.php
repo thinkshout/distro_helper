@@ -39,7 +39,7 @@ class DistroHelperUpdates {
   /**
    * A logger instance.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $logger;
 
