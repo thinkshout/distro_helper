@@ -8,6 +8,7 @@ use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -36,12 +37,20 @@ class DistroHelperUpdates {
   protected $configStorage;
 
   /**
+   * A logger instance.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   */
+  protected $logger;
+
+  /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactoryInterface $logger) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
+    $this->logger = $logger->get('distro_helper');
   }
 
   /**
@@ -139,13 +148,13 @@ class DistroHelperUpdates {
     $active_storage = $this->configStorage;
 
     if ($active_storage->read($config_name)) {
-
       // Find out which config was saved.
       $sync_storage->write($config_name, $active_storage->read($config_name));
     }
     else {
-      // Log: Could not read $config_name from the config sync directory. Did it successfully save to the database?
-      \Drupal::logger('distro_helper')->warning(
+      // Log: Could not read $config_name from the config sync directory.
+      // Is it new?
+      $this->logger->warning(
         'Could not read the @directory file. Is the configuration new?',
         ['@directory' => $sync_storage->getFilePath($config_name)]);
     }
@@ -169,34 +178,16 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $ymlConfig = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $install_profile_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
-    $config = \Drupal::service('config.factory')->getEditable($configName);
+    $config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($config->isNew()) {
       // Can't update nonexistent config.
       return FALSE;
     }
-    $config_data = $config->getRawData();
-    foreach ($elementKeys as $elementKey) {
-      $newValue = $ymlConfig;
-      $target = &$config_data;
-      $elementPath = explode('#', $elementKey);
-      foreach ($elementPath as $step) {
-        if (isset($newValue[$step])) {
-          if (!isset($target[$step])) {
-            // This key doesn't exist in the old config -- add it:
-            $target[$step] = [];
-          }
-          $target = &$target[$step];
-          $newValue = $newValue[$step];
-        }
-        else {
-          return FALSE;
-        }
-      }
-      $target = $newValue;
-    }
-    $config->setData($config_data)->save();
+    $active_config = $config->getRawData();
+    $active_config = $this->syncActiveConfigFromSavedConfigByKeys($active_config, $install_profile_config, $elementKeys);
+    $config->setData($active_config)->save();
 
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
@@ -227,6 +218,57 @@ class DistroHelperUpdates {
       throw new \RuntimeException(sprintf('Invalid YAML file %s', $file));
     }
     return ['value' => $value, 'file' => $file];
+  }
+
+  /**
+   * Syncs nested values in the 1st array with the same values from the 2nd.
+   *
+   * @param array $config_data
+   *   The first array, the active config.
+   * @param array $new_config
+   *   The second array, the proposed config.
+   * @param array $elementKeys
+   *   A flattened array representing the nested field to update.
+   *
+   * @return array
+   *   The updated array.
+   */
+  public function syncActiveConfigFromSavedConfigByKeys(array $config_data, array $new_config, array $elementKeys) {
+    foreach ($elementKeys as $elementKey) {
+      $newValue = $new_config;
+      $target = &$config_data;
+      $elementPath = explode('#', $elementKey);
+      $depth = 0;
+      foreach ($elementPath as $step) {
+        if (isset($newValue[$step])) {
+          if (!isset($target[$step])) {
+            // This key doesn't exist in the old config -- add it:
+            $target[$step] = [];
+          }
+          $target = &$target[$step];
+          $newValue = $newValue[$step];
+          $depth++;
+        }
+        else {
+          if (isset($target[$step])) {
+            $newValue = NULL;
+            $depth++;
+          }
+        }
+      }
+      if ($depth < count($elementPath)) {
+        // @todo If this is the case, we didn't find the full path given in our
+        // new config. Throw message?
+      }
+      elseif ($newValue === NULL) {
+        unset($target[$step]);
+      }
+      else {
+        $target = $newValue;
+      }
+    }
+
+    return $config_data;
   }
 
 }
