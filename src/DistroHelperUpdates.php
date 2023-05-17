@@ -178,20 +178,20 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $install_profile_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $new_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
-    $config = $this->configManager->getConfigFactory()->getEditable($configName);
-    if ($config->isNew()) {
+    $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
+    if ($active_config->isNew()) {
       // Can't update nonexistent config.
       return FALSE;
     }
-    $active_config = $config->getRawData();
-    $active_config = $this->syncActiveConfigFromSavedConfigByKeys($active_config, $install_profile_config, $elementKeys);
-    $config->setData($active_config)->save();
+    $raw_active_config = $active_config->getRawData();
+    $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
+    $active_config->setData($raw_active_config)->save();
 
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
-    return $config;
+    return $active_config;
   }
 
   /**
@@ -259,6 +259,9 @@ class DistroHelperUpdates {
       if ($depth < count($elementPath)) {
         // @todo If this is the case, we didn't find the full path given in our
         // new config. Throw message?
+        $this->logger->warning(
+          'Could not find a value nested at @config',
+          ['@config' => $elementKeys]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
