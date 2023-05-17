@@ -84,6 +84,7 @@ class DistroHelperUpdates {
   public function installConfig(string $configName, string $module, string $directory = 'install', bool $update = FALSE) {
     $updated = [];
     $created = [];
+    $entity = FALSE;
 
     $config_manager = $this->configManager;
     $config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory);
