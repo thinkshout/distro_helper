@@ -110,7 +110,7 @@ class DistroHelperUpdates {
     }
     else {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
-      $config = \Drupal::service('config.factory')->getEditable($configName);
+      $config = $this->configManager->getConfigFactory()->getEditable($configName);
       $config->setData($value);
       // If new config exists in sync, match up the uuids.
       $sync_config = $this->configStorageSync->read($configName);
