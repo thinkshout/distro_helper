@@ -8,6 +8,7 @@ use Drupal\Core\Config\StorageInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Simple test to ensure that asserts pass.
@@ -143,7 +144,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, old array unchanged.');
     // Proves that bad requests get logged.
     $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[0],
-      t('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+      new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
     );
 
     // Test: Trying to update a path that does not exist AND real paths.
@@ -170,7 +171,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
 
     // Proves that bad requests get logged.
     $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[1],
-      t('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+       new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
     );
   }
 

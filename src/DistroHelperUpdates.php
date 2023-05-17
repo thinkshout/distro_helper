@@ -9,6 +9,7 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -275,7 +276,7 @@ class DistroHelperUpdates {
       }
       if ($depth < count($elementPath)) {
         // We didn't find the full path given in our new config. Throw message.
-        $this->loggerErrors[] = t('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
+        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
