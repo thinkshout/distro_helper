@@ -292,6 +292,7 @@ class DistroHelperUpdates {
    * Returns the logger errors for unit tests.
    *
    * @return array
+   *   The array of all errors found.
    */
   public function getLoggerErrors(): array {
     return $this->loggerErrors;
