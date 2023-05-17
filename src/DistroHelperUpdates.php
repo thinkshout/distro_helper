@@ -90,15 +90,17 @@ class DistroHelperUpdates {
     $value = $config['value'];
 
     $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
-    /** @var \Drupal\Core\Entity\EntityTypeManager $entity_manager */
-    $entity_manager = $config_manager->getEntityTypeManager();
-    $definition = $entity_manager->getDefinition($type);
-    $id_key = $definition->getKey('id');
-    $id = $value[$id_key];
+    if ($type) {
+      /** @var \Drupal\Core\Entity\EntityTypeManager $entity_manager */
+      $entity_manager = $config_manager->getEntityTypeManager();
+      $definition = $entity_manager->getDefinition($type);
+      $id_key = $definition->getKey('id');
+      $id = $value[$id_key];
 
-    /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage $entity_storage */
-    $entity_storage = $entity_manager->getStorage($type);
-    $entity = $entity_storage->load($id);
+      /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage $entity_storage */
+      $entity_storage = $entity_manager->getStorage($type);
+      $entity = $entity_storage->load($id);
+    }
     if ($entity) {
       if ($update) {
         $entity = $entity_storage->updateFromStorageRecord($entity, $value);
@@ -108,15 +110,15 @@ class DistroHelperUpdates {
     }
     else {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
-      $entity = $entity_storage->createFromStorageRecord($value);
+      $config = \Drupal::service('config.factory')->getEditable($configName);
+      $config->setData($value);
       // If new config exists in sync, match up the uuids.
       $sync_config = $this->configStorageSync->read($configName);
-
       if (!empty($sync_config['uuid'])) {
-        $entity->set('uuid', $sync_config['uuid']);
+        $config->set('uuid', $sync_config['uuid']);
       }
-      $entity->save();
-      $created[] = $id;
+      $config->save();
+      $created[] = $configName;
     }
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
