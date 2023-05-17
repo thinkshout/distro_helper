@@ -183,6 +183,9 @@ class DistroHelperUpdates {
     $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($active_config->isNew()) {
       // Can't update nonexistent config.
+      $this->logger->error(
+        'No active config found for @configName. Use installConfig to import config that does not already exist in your database.',
+        ['@config' => $configName]);
       return FALSE;
     }
     $raw_active_config = $active_config->getRawData();
@@ -257,9 +260,8 @@ class DistroHelperUpdates {
         }
       }
       if ($depth < count($elementPath)) {
-        // @todo If this is the case, we didn't find the full path given in our
-        // new config. Throw message?
-        $this->logger->warning(
+        // We didn't find the full path given in our new config. Throw message.
+        $this->logger->error(
           'Could not find a value nested at @config',
           ['@config' => $elementKeys]);
       }
