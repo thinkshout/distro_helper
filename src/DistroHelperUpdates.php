@@ -44,6 +44,16 @@ class DistroHelperUpdates {
   protected $logger;
 
   /**
+   * Logger errors as an array found in syncActiveConfigFromSavedConfigByKeys.
+   *
+   * Using the drupal $logger factory in syncActiveConfigFromSavedConfigByKeys
+   * would force us to change our test to a Kernel test.
+   *
+   * @var array
+   */
+  protected $loggerErrors;
+
+  /**
    * Constructs a new DistroHelperUpdates object.
    */
   public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactoryInterface $logger) {
@@ -51,6 +61,7 @@ class DistroHelperUpdates {
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
     $this->logger = $logger->get('distro_helper');
+    $this->loggerErrors = [];
   }
 
   /**
@@ -190,6 +201,9 @@ class DistroHelperUpdates {
     }
     $raw_active_config = $active_config->getRawData();
     $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
+    foreach($this->loggerErrors as $error) {
+      $this->logger->error($error->render());
+    }
     $active_config->setData($raw_active_config)->save();
 
     // If possible, immediately export the updated files.
@@ -261,9 +275,7 @@ class DistroHelperUpdates {
       }
       if ($depth < count($elementPath)) {
         // We didn't find the full path given in our new config. Throw message.
-        $this->logger->error(
-          'Could not find a value nested at @config',
-          ['@config' => $elementKeys]);
+        $this->loggerErrors[] =  t('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
@@ -274,6 +286,15 @@ class DistroHelperUpdates {
     }
 
     return $config_data;
+  }
+
+  /**
+   * Returns the logger errors for unit tests.
+   *
+   * @return array
+   */
+  public function getLoggerErrors(): array {
+    return $this->loggerErrors;
   }
 
 }
