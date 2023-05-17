@@ -201,7 +201,7 @@ class DistroHelperUpdates {
     }
     $raw_active_config = $active_config->getRawData();
     $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
-    foreach($this->loggerErrors as $error) {
+    foreach ($this->loggerErrors as $error) {
       $this->logger->error($error->render());
     }
     $active_config->setData($raw_active_config)->save();
@@ -275,7 +275,7 @@ class DistroHelperUpdates {
       }
       if ($depth < count($elementPath)) {
         // We didn't find the full path given in our new config. Throw message.
-        $this->loggerErrors[] =  t('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
+        $this->loggerErrors[] = t('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
