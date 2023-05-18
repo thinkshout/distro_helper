@@ -196,7 +196,7 @@ class DistroHelperUpdates {
     if ($active_config->isNew()) {
       // Can't update nonexistent config.
       $this->logger->error(
-        'No active config found for @configName. Use installConfig to import config that does not already exist in your database.',
+        'No active config found for @configName in updateConfig(). Use installConfig() to import config that does not already exist in your database.',
         ['@config' => $configName]);
       return FALSE;
     }
