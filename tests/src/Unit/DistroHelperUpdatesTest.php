@@ -7,7 +7,8 @@ use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Simple test to ensure that asserts pass.
@@ -74,7 +75,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $config_manager = $this->prophesize(ConfigManagerInterface::class);
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);
-    $logger = $this->prophesize(LoggerChannelFactory::class);
+    $logger = $this->prophesize(LoggerChannelFactoryInterface::class);
     $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $logger->reveal());
   }
 
@@ -141,6 +142,10 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     // Test: Trying to update a path that does not exist.
     $bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['the_final_little_piggy#went weeeeee all the way home#distance']);
     $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, old array unchanged.');
+    // Proves that bad requests get logged.
+    $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[0],
+      new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+    );
 
     // Test: Trying to update a path that does not exist AND real paths.
     $partially_bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, [
@@ -163,6 +168,11 @@ class DistroHelperUpdatesTest extends UnitTestCase {
         ],
       ],
     ], 'Part of a bad update succeeded.');
+
+    // Proves that bad requests get logged.
+    $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[1],
+       new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+    );
   }
 
   /**

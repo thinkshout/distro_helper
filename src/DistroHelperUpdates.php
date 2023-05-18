@@ -9,6 +9,7 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -39,9 +40,19 @@ class DistroHelperUpdates {
   /**
    * A logger instance.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $logger;
+
+  /**
+   * Logger errors as an array that can be printed out.
+   *
+   * Using the drupal $logger factory in syncActiveConfigFromSavedConfigByKeys
+   * would force us to change our test to a slower Kernel test.
+   *
+   * @var array
+   */
+  protected $loggerErrors;
 
   /**
    * Constructs a new DistroHelperUpdates object.
@@ -51,6 +62,7 @@ class DistroHelperUpdates {
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
     $this->logger = $logger->get('distro_helper');
+    $this->loggerErrors = [];
   }
 
   /**
@@ -181,20 +193,26 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $install_profile_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $new_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
 
-    $config = $this->configManager->getConfigFactory()->getEditable($configName);
-    if ($config->isNew()) {
+    $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
+    if ($active_config->isNew()) {
       // Can't update nonexistent config.
+      $this->logger->error(
+        'No active config found for @configName. Use installConfig to import config that does not already exist in your database.',
+        ['@config' => $configName]);
       return FALSE;
     }
-    $active_config = $config->getRawData();
-    $active_config = $this->syncActiveConfigFromSavedConfigByKeys($active_config, $install_profile_config, $elementKeys);
-    $config->setData($active_config)->save();
+    $raw_active_config = $active_config->getRawData();
+    $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
+    foreach ($this->loggerErrors as $error) {
+      $this->logger->error($error->render());
+    }
+    $active_config->setData($raw_active_config)->save();
 
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
-    return $config;
+    return $active_config;
   }
 
   /**
@@ -260,8 +278,8 @@ class DistroHelperUpdates {
         }
       }
       if ($depth < count($elementPath)) {
-        // @todo If this is the case, we didn't find the full path given in our
-        // new config. Throw message?
+        // We didn't find the full path given in our new config. Throw message.
+        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
@@ -272,6 +290,16 @@ class DistroHelperUpdates {
     }
 
     return $config_data;
+  }
+
+  /**
+   * Returns the logger errors for unit tests.
+   *
+   * @return array
+   *   The array of all errors found.
+   */
+  public function getLoggerErrors(): array {
+    return $this->loggerErrors;
   }
 
 }
