@@ -45,10 +45,10 @@ class DistroHelperUpdates {
   protected $logger;
 
   /**
-   * Logger errors as an array found in syncActiveConfigFromSavedConfigByKeys.
+   * Logger errors as an array that can be printed out.
    *
    * Using the drupal $logger factory in syncActiveConfigFromSavedConfigByKeys
-   * would force us to change our test to a Kernel test.
+   * would force us to change our test to a slower Kernel test.
    *
    * @var array
    */
