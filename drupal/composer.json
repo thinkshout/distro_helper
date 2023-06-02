@@ -19,7 +19,7 @@
         "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.1",
         "drupal/core-recommended": "^9.1",
-        "thinkshout/distro_helper": "dev-logging-and-errors-15"
+        "thinkshout/distro_helper": "dev-main"
     },
     "require-dev": {
         "drupal/coder": "^8.3",

@@ -219,8 +219,10 @@ class DistroHelperUpdates {
    */
   private function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
     $file = $this->extensionPathResolver->getPath('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
-    $raw = file_get_contents($file);
-    if (empty($raw)) {
+    try {
+      $raw = file_get_contents($file);
+    }
+    catch (\Exception $exception) {
       throw new UpdateException(sprintf('Config file not found at %s', $file));
     }
     $value = Yaml::decode($raw);
