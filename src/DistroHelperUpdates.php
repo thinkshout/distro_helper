@@ -39,13 +39,6 @@ class DistroHelperUpdates {
   protected $configStorage;
 
   /**
-   * A logger instance.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
-  protected $logger;
-
-  /**
    * Logger errors as an array that can be printed out.
    *
    * Using the drupal $logger factory in syncActiveConfigFromSavedConfigByKeys
@@ -58,11 +51,10 @@ class DistroHelperUpdates {
   /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactoryInterface $logger) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
-    $this->logger = $logger;
     $this->loggerErrors = [];
   }
 
@@ -170,7 +162,7 @@ class DistroHelperUpdates {
     else {
       // Log: Could not read $config_name from the config sync directory.
       // Is it new?
-      $this->logger->get('distro_helper')->warning(
+      throw new UpdateException(
         'Could not read the @directory file. Is the configuration new?',
         ['@directory' => $sync_storage->getFilePath($config_name)]);
     }
@@ -199,15 +191,13 @@ class DistroHelperUpdates {
     $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($active_config->isNew()) {
       // Can't update nonexistent config.
-      $this->logger->get('distro_helper')->error(
-        'No active config found for @config in updateConfig(). Use installConfig() to import config that does not already exist in your database.',
+      throw new UpdateException('No active config found for @config in updateConfig(). Use installConfig() to import config that does not already exist in your database.',
         ['@config' => $configName]);
-      throw new UpdateException('Something went wrong; here is what you should do.');
     }
     $raw_active_config = $active_config->getRawData();
     $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
     foreach ($this->loggerErrors as $error) {
-      $this->logger->get('distro_helper')->error($error->render());
+      throw new UpdateException($error->render());
     }
     $active_config->setData($raw_active_config)->save();
 
