@@ -7,6 +7,7 @@ use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\UpdateException;
@@ -50,11 +51,12 @@ class DistroHelperUpdates {
   /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, ExtensionPathResolver $extension_path_resolver) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
     $this->loggerErrors = [];
+    $this->extensionPathResolver = $extension_path_resolver;
   }
 
   /**
@@ -91,7 +93,7 @@ class DistroHelperUpdates {
     $entity = FALSE;
 
     $config_manager = $this->configManager;
-    $config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory);
+    $config = $this->loadConfigFromModule($configName, $module, $directory);
     $value = $config['value'];
 
     $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
@@ -183,7 +185,7 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $new_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $new_config = $this->loadConfigFromModule($configName, $module, $directory)['value'];
 
     $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($active_config->isNew()) {
@@ -215,8 +217,8 @@ class DistroHelperUpdates {
    * @return array
    *   An array representation of a yml file.
    */
-  private static function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
-    $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
+  private function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
+    $file = $this->extensionPathResolver->getPath('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
     $raw = file_get_contents($file);
     if (empty($raw)) {
       throw new UpdateException(sprintf('Config file not found at %s', $file));

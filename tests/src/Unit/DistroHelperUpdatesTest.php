@@ -9,6 +9,7 @@ use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Extension\ExtensionPathResolver;
 
 /**
  * Simple test to ensure that asserts pass.
@@ -75,8 +76,8 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $config_manager = $this->prophesize(ConfigManagerInterface::class);
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);
-    $logger = $this->prophesize(LoggerChannelFactoryInterface::class);
-    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $logger->reveal());
+    $extension_path_resolver = $this->prophesize(ExtensionPathResolver::class);
+    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $extension_path_resolver->reveal());
   }
 
   /**
