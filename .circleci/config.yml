@@ -24,7 +24,6 @@ jobs:
             export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
-            robo configure --db-name=circletest --db-user=drupal --db-pass=drupal --db-host=127.0.0.1 --prod-branch=main
             composer code-sniff
             ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests
 workflows:
