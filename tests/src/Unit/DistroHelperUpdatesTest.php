@@ -7,7 +7,6 @@ use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Tests\UnitTestCase;
 use Drupal\distro_helper\DistroHelperUpdates;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Extension\ExtensionPathResolver;
 
