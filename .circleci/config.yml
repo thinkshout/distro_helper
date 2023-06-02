@@ -26,7 +26,7 @@ jobs:
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             composer code-sniff
-            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests/src/Unit/
+            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests/src/Unit/,web/modules/contrib/distro_helper/tests/src/Kernal/
 workflows:
   version: 2
   build-and-test:
