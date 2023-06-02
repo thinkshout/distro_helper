@@ -15,6 +15,7 @@ jobs:
           MYSQL_DATABASE: circletest
           MYSQL_USER: drupal
           MYSQL_PASSWORD: drupal
+          MYSQL_PORT: 3306
     working_directory: /var/www/html/distro_helper
     steps:
       - checkout
@@ -22,7 +23,6 @@ jobs:
           name: Code sniffer and unit tests.
           command: |
             export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
-            composer self-update --2
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             composer code-sniff
