@@ -26,7 +26,7 @@ jobs:
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             robo configure --db-name=circletest --db-user=drupal --db-pass=drupal --db-host=127.0.0.1 --prod-branch=main
             composer code-sniff
-            ./vendor/bin/phpunit --group=distro_helper
+            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests
 workflows:
   version: 2
   build-and-test:
