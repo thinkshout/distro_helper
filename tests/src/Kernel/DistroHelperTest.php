@@ -5,9 +5,9 @@ namespace Drupal\Tests\ckeditor\Kernel;
 use Drupal\KernelTests\KernelTestBase;
 
 /**
- * Tests for the 'CKEditor' text editor plugin.
+ * Tests for the 'Distro Helper' plugin.
  *
- * @group ckeditor
+ * @group distro_helper
  */
 class DistroHelperTest extends KernelTestBase {
 
