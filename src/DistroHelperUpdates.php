@@ -223,6 +223,11 @@ class DistroHelperUpdates {
       $raw = file_get_contents($file);
     }
     catch (\Exception $exception) {
+      // Catch for unit tests, which throw an exception.
+      throw new UpdateException(sprintf('Config file not found at %s', $file));
+    }
+    if (empty($raw)) {
+      // If no exception thrown and nothing in raw, throw an exception.
       throw new UpdateException(sprintf('Config file not found at %s', $file));
     }
     $value = Yaml::decode($raw);
