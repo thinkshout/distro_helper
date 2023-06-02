@@ -26,6 +26,7 @@ jobs:
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             composer code-sniff
+            drush site:install minimal --db-url=mysql://root:root@localhost:3306/circletest
             ./vendor/bin/phpunit --group=distro_helper
 workflows:
   version: 2
