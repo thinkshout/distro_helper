@@ -19,9 +19,7 @@
         "drupal/core-composer-scaffold": "^9.1",
         "drupal/core-project-message": "^9.1",
         "drupal/core-recommended": "^9.1",
-        "drush/drush": "^11.5",
-        "thinkshout/distro_helper": "dev-main",
-        "thinkshout/robo-drupal": "^4.0"
+        "thinkshout/distro_helper": "dev-main"
     },
     "require-dev": {
         "drupal/coder": "^8.3",
@@ -56,10 +54,7 @@
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
-            },
-            "allowed-packages": [
-                "thinkshout\/robo-drupal"
-            ]
+            }
         },
         "installer-paths": {
             "web/core": [
