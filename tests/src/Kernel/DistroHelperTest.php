@@ -19,7 +19,7 @@ class DistroHelperTest extends KernelTestBase {
   protected static $modules = [
     'system',
     'config',
-    'distro_helper_tests',
+    'distro_helper_test',
   ];
 
   /**
