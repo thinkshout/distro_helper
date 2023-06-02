@@ -13,8 +13,8 @@ jobs:
         environment:
           MYSQL_RANDOM_ROOT_PASSWORD: 1
           MYSQL_DATABASE: circletest
-          MYSQL_USER: root
-          MYSQL_PASSWORD: root
+          MYSQL_USER: drupal
+          MYSQL_PASSWORD: drupal
     working_directory: /var/www/html/distro_helper
     steps:
       - checkout
