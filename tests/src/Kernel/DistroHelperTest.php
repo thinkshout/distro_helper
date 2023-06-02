@@ -26,7 +26,12 @@ class DistroHelperTest extends KernelTestBase {
    * Tests the update helper for UpdateExceptions.
    */
   public function testErrors() {
-    // Failure 1: config does not exist in active config. TODO.
+    // Failure 1: config does not exist in active config.
+    \Drupal::service('distro_helper.updates')->updateConfig('distro_helper_test.test', [
+      'some_stuff',
+    ], 'distro_helper_test');
+    $this->installConfig(['distro_helper_test']);
+
     // Failure 2: config does not exist in the module.
     \Drupal::service('distro_helper.updates')->updateConfig('distro_helper_test.test_missing', [
       'some_stuff',
