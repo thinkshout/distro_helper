@@ -52,19 +52,19 @@
   </php>
   <testsuites>
     <testsuite name="unit">
-      <file>web/core/tests/TestSuites/UnitTestSuite.php</file>
+      <file>./tests/TestSuites/UnitTestSuite.php</file>
     </testsuite>
     <testsuite name="kernel">
-      <file>web/core/tests/TestSuites/KernelTestSuite.php</file>
+      <file>./tests/TestSuites/KernelTestSuite.php</file>
     </testsuite>
     <testsuite name="functional">
-      <file>web/core/tests/TestSuites/FunctionalTestSuite.php</file>
+      <file>./tests/TestSuites/FunctionalTestSuite.php</file>
     </testsuite>
     <testsuite name="functional-javascript">
-      <file>web/core/tests/TestSuites/FunctionalJavascriptTestSuite.php</file>
+      <file>./tests/TestSuites/FunctionalJavascriptTestSuite.php</file>
     </testsuite>
     <testsuite name="build">
-      <file>web/core/tests/TestSuites/BuildTestSuite.php</file>
+      <file>./tests/TestSuites/BuildTestSuite.php</file>
     </testsuite>
   </testsuites>
   <listeners>
