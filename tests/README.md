@@ -10,7 +10,7 @@ Run tests from within the `drupal` directory:
 ```
 cd drupal
 composer install
-./vendor/bin/phpunit --group=distro_helper --group=distro_helper
+./vendor/bin/phpunit web/modules/contrib/distro_helper/tests
 ```
 
 You can troubleshoot individual tests by type in this way:
