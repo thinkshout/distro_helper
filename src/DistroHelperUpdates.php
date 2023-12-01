@@ -226,7 +226,7 @@ class DistroHelperUpdates {
    *   An array representation of a yml file.
    */
   private static function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
-    $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
+    $file = \Drupal::service('extension.list.module')->getPath($module) . '/config/' . $directory . '/' . $configName . '.yml';
     $raw = file_get_contents($file);
     if (empty($raw)) {
       throw new \RuntimeException(sprintf('Config file not found at %s', $file));
