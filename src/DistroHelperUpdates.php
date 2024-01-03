@@ -2,12 +2,12 @@
 
 namespace Drupal\distro_helper;
 
-use Drupal\Core\Config\ConfigManagerInterface;
-use Drupal\Core\Config\StorageInterface;
-use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Core\Extension\ExtensionPathResolver;
+use Drupal\Core\Config\CachedStorage;
+use Drupal\Core\Config\ConfigManagerInterface;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\UpdateException;
