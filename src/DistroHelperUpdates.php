@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\UpdateException;
@@ -46,6 +47,13 @@ class DistroHelperUpdates {
    * @var array
    */
   protected $loggerErrors;
+
+  /**
+   * The extension path resolver.
+   *
+   * @var \Drupal\Core\Extension\ExtensionPathResolver
+   */
+  protected $extensionPathResolver;
 
   /**
    * Constructs a new DistroHelperUpdates object.
