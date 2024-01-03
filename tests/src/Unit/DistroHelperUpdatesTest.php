@@ -5,10 +5,10 @@ namespace Drupal\Tests\distro_helper\Unit;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
-use Drupal\Tests\UnitTestCase;
-use Drupal\distro_helper\DistroHelperUpdates;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Extension\ExtensionPathResolver;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\distro_helper\DistroHelperUpdates;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * Simple test to ensure that asserts pass.

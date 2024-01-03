@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\ckeditor\Kernel;
 
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\Core\Utility\UpdateException;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests for the 'Distro Helper' plugin.
