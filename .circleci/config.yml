@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: thinkshout/nginx-php-fpm:php74
+      - image: thinkshout/nginx-php-fpm:php81
         environment:
           WEBROOT: /var/www/html/distro_helper/drupal/web
           GIT_EMAIL: "ci@thinkshout.com"
@@ -22,11 +22,10 @@ jobs:
           name: Code sniffer and unit tests.
           command: |
             export PATH="./vendor/bin:../vendor/bin:/root/.composer/vendor/bin:$PATH"
-            composer self-update --2
             cd drupal
             COMPOSER_MEMORY_LIMIT=-1 composer require thinkshout/distro_helper:dev-${CIRCLE_BRANCH} --update-with-dependencies
             composer code-sniff
-            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests/src/Unit/
+            ./vendor/bin/phpunit web/modules/contrib/distro_helper/tests
 workflows:
   version: 2
   build-and-test:

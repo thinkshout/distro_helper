@@ -1,0 +1,5 @@
+name: Distro Helper test
+type: module
+description: Support module for the Distro Helper module tests.
+package: Testing
+core_version_requirement: ">9.4"
