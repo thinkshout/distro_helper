@@ -103,6 +103,7 @@ class DistroHelperUpdates {
     $config = $this->loadConfigFromModule($configName, $module, $directory);
     $value = $config['value'];
 
+    // Special case for Fields
     $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
     if ($type) {
       /** @var \Drupal\Core\Entity\EntityTypeManager $entity_manager */
@@ -114,12 +115,18 @@ class DistroHelperUpdates {
       /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage $entity_storage */
       $entity_storage = $entity_manager->getStorage($type);
       $entity = $entity_storage->load($id);
-    }
-    if ($entity) {
-      if ($update) {
-        $entity = $entity_storage->updateFromStorageRecord($entity, $value);
+
+      if ($entity) {
+        if ($update) {
+          $entity = $entity_storage->updateFromStorageRecord($entity, $value);
+          $entity->save();
+          $updated[] = $id;
+        }
+      }
+      else {
+        $entity = $entity_storage->createFromStorageRecord($value);
         $entity->save();
-        $updated[] = $id;
+        $created[] = $id;
       }
     }
     else {
