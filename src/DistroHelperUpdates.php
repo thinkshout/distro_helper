@@ -103,7 +103,7 @@ class DistroHelperUpdates {
     $config = $this->loadConfigFromModule($configName, $module, $directory);
     $value = $config['value'];
 
-    // Special case for Fields
+    // Special case for Fields.
     $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
     if ($type) {
       /** @var \Drupal\Core\Entity\EntityTypeManager $entity_manager */
