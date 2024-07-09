@@ -126,6 +126,12 @@ class DistroHelperUpdates {
       else {
         $entity = $entity_storage->createFromStorageRecord($value);
         $entity->save();
+        $config = $this->configManager->getConfigFactory()->getEditable($configName);
+        $sync_config = $this->configStorageSync->read($configName);
+        if (!empty($sync_config['uuid'])) {
+          $config->set('uuid', $sync_config['uuid']);
+        }
+        $config->save();
         $created[] = $id;
       }
     }
