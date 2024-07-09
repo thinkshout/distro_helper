@@ -1,0 +1,7 @@
+distro_helper_test.test:
+  type: config_object
+  label: 'Test config'
+  mapping:
+    some_stuff:
+      type: integer
+      label: 'A number illustrating some schema'

@@ -2,14 +2,15 @@
 
 namespace Drupal\distro_helper;
 
-use Drupal\Core\Config\ConfigManagerInterface;
-use Drupal\Core\Config\StorageInterface;
-use Drupal\Core\Config\CachedStorage;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Config\CachedStorage;
+use Drupal\Core\Config\ConfigManagerInterface;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Site\Settings;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Utility\UpdateException;
 
 /**
  * Provides a service to help with configuration management in distros.
@@ -38,13 +39,6 @@ class DistroHelperUpdates {
   protected $configStorage;
 
   /**
-   * A logger instance.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
-   */
-  protected $logger;
-
-  /**
    * Logger errors as an array that can be printed out.
    *
    * Using the drupal $logger factory in syncActiveConfigFromSavedConfigByKeys
@@ -55,14 +49,21 @@ class DistroHelperUpdates {
   protected $loggerErrors;
 
   /**
+   * The extension path resolver.
+   *
+   * @var \Drupal\Core\Extension\ExtensionPathResolver
+   */
+  protected $extensionPathResolver;
+
+  /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, LoggerChannelFactoryInterface $logger) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, ExtensionPathResolver $extension_path_resolver) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
-    $this->logger = $logger->get('distro_helper');
     $this->loggerErrors = [];
+    $this->extensionPathResolver = $extension_path_resolver;
   }
 
   /**
@@ -99,7 +100,7 @@ class DistroHelperUpdates {
     $entity = FALSE;
 
     $config_manager = $this->configManager;
-    $config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory);
+    $config = $this->loadConfigFromModule($configName, $module, $directory);
     $value = $config['value'];
 
     $type = $config_manager->getEntityTypeIdByName(basename($config['file']));
@@ -169,9 +170,7 @@ class DistroHelperUpdates {
     else {
       // Log: Could not read $config_name from the config sync directory.
       // Is it new?
-      $this->logger->warning(
-        'Could not read the @directory file. Is the configuration new?',
-        ['@directory' => $sync_storage->getFilePath($config_name)]);
+      throw new UpdateException('Could not read the %s file. Is the configuration new?', $sync_storage->getFilePath($config_name));
     }
   }
 
@@ -193,20 +192,17 @@ class DistroHelperUpdates {
    *   FALSE if the update failed, otherwise the updated configuration object.
    */
   public function updateConfig(string $configName, array $elementKeys, string $module, string $directory = 'install') {
-    $new_config = DistroHelperUpdates::loadConfigFromModule($configName, $module, $directory)['value'];
+    $new_config = $this->loadConfigFromModule($configName, $module, $directory)['value'];
 
     $active_config = $this->configManager->getConfigFactory()->getEditable($configName);
     if ($active_config->isNew()) {
       // Can't update nonexistent config.
-      $this->logger->error(
-        'No active config found for @config in updateConfig(). Use installConfig() to import config that does not already exist in your database.',
-        ['@config' => $configName]);
-      return FALSE;
+      throw new UpdateException(sprintf('No active config found for %s while running updateConfig(). Use installConfig() to import config that does not already exist in your database.', $configName));
     }
     $raw_active_config = $active_config->getRawData();
     $raw_active_config = $this->syncActiveConfigFromSavedConfigByKeys($raw_active_config, $new_config, $elementKeys);
     foreach ($this->loggerErrors as $error) {
-      $this->logger->error($error->render());
+      throw new UpdateException($error->render());
     }
     $active_config->setData($raw_active_config)->save();
 
@@ -228,15 +224,22 @@ class DistroHelperUpdates {
    * @return array
    *   An array representation of a yml file.
    */
-  private static function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
-    $file = drupal_get_path('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
-    $raw = file_get_contents($file);
+  private function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
+    $file = $this->extensionPathResolver->getPath('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
+    try {
+      $raw = file_get_contents($file);
+    }
+    catch (\Exception $exception) {
+      // Catch for unit tests, which throw an exception.
+      throw new UpdateException(sprintf('Config file not found at %s', $file));
+    }
     if (empty($raw)) {
-      throw new \RuntimeException(sprintf('Config file not found at %s', $file));
+      // If no exception thrown and nothing in raw, throw an exception.
+      throw new UpdateException(sprintf('Config file not found at %s', $file));
     }
     $value = Yaml::decode($raw);
     if (!is_array($value)) {
-      throw new \RuntimeException(sprintf('Invalid YAML file %s', $file));
+      throw new UpdateException(sprintf('Invalid YAML file %s', $file));
     }
     return ['value' => $value, 'file' => $file];
   }
