@@ -141,10 +141,11 @@ class DistroHelperUpdatesTest extends UnitTestCase {
 
     // Test: Trying to update a path that does not exist.
     $bad_update = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['the_final_little_piggy#went weeeeee all the way home#distance']);
-    $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, old array unchanged.');
+    $this->assertEquals($bad_update, $this->ymlOld, 'Tried to update a non-existent path, stored config unchanged.');
     // Proves that bad requests get logged.
+    $bad_update2 = $this->distroHelperUpdates->syncActiveConfigFromSavedConfigByKeys($this->ymlOld, $this->ymlNew, ['some_nonexistent_pig#went weeeeee all the way home#distance']);
     $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[0],
-      new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+      new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'some_nonexistent_pig.went weeeeee all the way home.distance'])
     );
 
     // Test: Trying to update a path that does not exist AND real paths.

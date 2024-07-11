@@ -293,7 +293,10 @@ class DistroHelperUpdates {
             $newValue = NULL;
             $depth++;
           }
-          // If the new value is empty and the old value is empty, and this is the last loop, we're done.
+          // If the new value is empty and the old value is empty, and this is
+          // the deepest loop, we don't need to unset the old value.
+          // If there are more loops, this is probably a mistake, so we'll throw
+          // an error.
           elseif ($depth === count($elementPath) - 1) {
             $depth++;
           }
