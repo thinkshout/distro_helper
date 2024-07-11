@@ -171,7 +171,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
 
     // Proves that bad requests get logged.
     $this->assertEquals($this->distroHelperUpdates->getLoggerErrors()[1],
-       new TranslatableMarkup('Could not find a value nested at @config', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
+       new TranslatableMarkup('Could not find a value nested at @config for either the new or old config. Is your path correct?', ['@config' => 'the_final_little_piggy.went weeeeee all the way home.distance'])
     );
   }
 
