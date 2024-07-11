@@ -278,6 +278,7 @@ class DistroHelperUpdates {
       $depth = 0;
       foreach ($elementPath as $step) {
         if (isset($newValue[$step])) {
+          // Add the new value.
           if (!isset($target[$step])) {
             // This key doesn't exist in the old config -- add it:
             $target[$step] = [];
@@ -287,8 +288,13 @@ class DistroHelperUpdates {
           $depth++;
         }
         else {
+          // Remove the new value.
           if (isset($target[$step])) {
             $newValue = NULL;
+            $depth++;
+          }
+          // If the new value is empty and the old value is empty, and this is the last loop, we're done.
+          elseif ($depth === count($elementPath) - 1) {
             $depth++;
           }
         }
