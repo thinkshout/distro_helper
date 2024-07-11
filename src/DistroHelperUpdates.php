@@ -278,6 +278,7 @@ class DistroHelperUpdates {
       $depth = 0;
       foreach ($elementPath as $step) {
         if (isset($newValue[$step])) {
+          // Add the new value.
           if (!isset($target[$step])) {
             // This key doesn't exist in the old config -- add it:
             $target[$step] = [];
@@ -287,7 +288,16 @@ class DistroHelperUpdates {
           $depth++;
         }
         else {
+          // Remove the new value.
           if (isset($target[$step])) {
+            $newValue = NULL;
+            $depth++;
+          }
+          // If the new value is empty and the old value is empty, and this is
+          // the deepest loop, we don't need to unset the old value.
+          // If there are more loops, this is probably a mistake, so we'll throw
+          // an error.
+          elseif ($depth === count($elementPath) - 1) {
             $newValue = NULL;
             $depth++;
           }
@@ -295,7 +305,7 @@ class DistroHelperUpdates {
       }
       if ($depth < count($elementPath)) {
         // We didn't find the full path given in our new config. Throw message.
-        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
+        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config for either the new or old config. Is your path correct?', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
