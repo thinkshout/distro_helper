@@ -304,7 +304,7 @@ class DistroHelperUpdates {
       }
       if ($depth < count($elementPath)) {
         // We didn't find the full path given in our new config. Throw message.
-        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config', ['@config' => implode('.', $elementPath)]);
+        $this->loggerErrors[] = new TranslatableMarkup('Could not find a value nested at @config for either the new or old config. Is your path correct?', ['@config' => implode('.', $elementPath)]);
       }
       elseif ($newValue === NULL) {
         unset($target[$step]);
