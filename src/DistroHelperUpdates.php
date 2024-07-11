@@ -298,6 +298,7 @@ class DistroHelperUpdates {
           // If there are more loops, this is probably a mistake, so we'll throw
           // an error.
           elseif ($depth === count($elementPath) - 1) {
+            $newValue = NULL;
             $depth++;
           }
         }
