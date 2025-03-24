@@ -56,14 +56,22 @@ class DistroHelperUpdates {
   protected $extensionPathResolver;
 
   /**
+  * Drupal\Core\Config\ConfigManagerInterface definition.
+  *
+  * @var \Drupal\Core\Config\ConfigFactoryInterface
+  */
+  protected $configFactory;
+
+    /**
    * Constructs a new DistroHelperUpdates object.
    */
-  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, ExtensionPathResolver $extension_path_resolver) {
+  public function __construct(ConfigManagerInterface $config_manager, StorageInterface $config_storage_sync, CachedStorage $config_storage, ExtensionPathResolver $extension_path_resolver, ConfigFactoryInterface $config_factory) {
     $this->configManager = $config_manager;
     $this->configStorageSync = $config_storage_sync;
     $this->configStorage = $config_storage;
     $this->loggerErrors = [];
     $this->extensionPathResolver = $extension_path_resolver;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -147,7 +155,7 @@ class DistroHelperUpdates {
       $config->save();
       $created[] = $configName;
     }
-    \Drupal::service('distro_helper.install')->syncUUIDs([$configName]);
+    $this->syncUUIDs([$configName]);
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
     return [
@@ -328,5 +336,27 @@ class DistroHelperUpdates {
   public function getLoggerErrors(): array {
     return $this->loggerErrors;
   }
+
+    /**
+     * Update the uuids from the just-installed site to match the config folder.
+     *
+     * @param array $configs
+     *   The a set of configs as an array (leave off the .yml).
+     */
+    public function syncUuids(array $configs) {
+        foreach ($configs as $configName) {
+            // If new config exists in sync, match up the uuids.
+            $sync_config = $this->configStorageSync->read($configName);
+            $entity = $this->configFactory->getEditable($configName);
+
+            if (!empty($sync_config['uuid'])) {
+                $entity->set('uuid', $sync_config['uuid']);
+            }
+            if (isset($sync_config['_core']['default_config_hash'])) {
+                $entity->set('_core', $sync_config['_core']);
+            }
+            $entity->save();
+        }
+    }
 
 }
