@@ -147,7 +147,7 @@ class DistroHelperUpdates {
       $config->save();
       $created[] = $configName;
     }
-      \Drupal::service('distro_helper.install')->syncUUIDs([$configName]);
+    \Drupal::service('distro_helper.install')->syncUUIDs([$configName]);
     // If possible, immediately export the updated files.
     $this->exportConfig($configName);
     return [
