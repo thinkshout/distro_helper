@@ -53,11 +53,11 @@ Pushes uuids from your file based configuration into your site configuration. Th
 Usage is:
 
 ```
-\Drupal::service('distro_helper.install')->syncUUIDs($configs);
+\Drupal::service('distro_helper.updates')->syncUUIDs($configs);
 ```
 
 The standard way to call it, passing in ALL the file-based configs, is easy with the 'config.storage.export' service:
 
 ```
-\Drupal::service('distro_helper.install')->syncUUIDs(\Drupal::service('config.storage.export')->listAll());
+\Drupal::service('distro_helper.updates')->syncUUIDs(\Drupal::service('config.storage.export')->listAll());
 ```
