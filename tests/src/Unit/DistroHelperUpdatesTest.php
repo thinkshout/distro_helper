@@ -3,6 +3,7 @@
 namespace Drupal\Tests\distro_helper\Unit;
 
 use Drupal\Core\Config\CachedStorage;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Extension\ExtensionPathResolver;
@@ -76,7 +77,8 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);
     $extension_path_resolver = $this->prophesize(ExtensionPathResolver::class);
-    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $extension_path_resolver->reveal());
+    $config_factory = $this->prophesize(ConfigFactoryInterface::class);
+    $this->distroHelperUpdates = new DistroHelperUpdates($config_manager->reveal(), $config_storage_sync->reveal(), $config_storage->reveal(), $extension_path_resolver->reveal(), $config_factory->reveal());
   }
 
   /**
