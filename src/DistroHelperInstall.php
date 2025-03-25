@@ -2,12 +2,15 @@
 
 namespace Drupal\distro_helper;
 
-use Drupal\distro_helper\DistroHelperUpdates;
+// @codingStandardsIgnoreFile
 
 /**
  * Provides a service to help with config management in distros on install.
  *
- * @deprecated in %deprecation-version% and is removed from %removal-version%. %extra-info%.
+ * @deprecated in distro_helper:1.0.5 and is removed from distro_helper:2.0.0.
+ * @see https://github.com/thinkshout/distro_helper/issues/21
+ * Use \Drupal\distro_helper\DistroHelperUpdates::syncUuids instead.
+ * Example usage: \Drupal::service('distro_helper.updates')->syncUUIDs($configs);
  */
 class DistroHelperInstall {
 
@@ -32,7 +35,7 @@ class DistroHelperInstall {
    *   The a set of configs as an array (leave off the .yml).
    */
   public function syncUuids(array $configs) {
-      $this->distroHelperUpdates->syncUUIDs(\Drupal::service('config.storage.export')->listAll());
+    $this->distroHelperUpdates->syncUUIDs(\Drupal::service('config.storage.export')->listAll());
   }
 
 }
