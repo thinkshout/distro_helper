@@ -119,19 +119,21 @@ class DistroHelperUpdates {
       if ($entity) {
         if ($update) {
           $entity = $entity_storage->updateFromStorageRecord($entity, $value);
+          $sync_config = $this->configStorageSync->read($configName);
+          if (!empty($sync_config['uuid'])) {
+            $entity->set('uuid', $sync_config['uuid']);
+          }
           $entity->save();
           $updated[] = $id;
         }
       }
       else {
         $entity = $entity_storage->createFromStorageRecord($value);
-        $entity->save();
-        $config = $this->configManager->getConfigFactory()->getEditable($configName);
         $sync_config = $this->configStorageSync->read($configName);
         if (!empty($sync_config['uuid'])) {
-          $config->set('uuid', $sync_config['uuid']);
+          $entity->set('uuid', $sync_config['uuid']);
         }
-        $config->save();
+        $entity->save();
         $created[] = $id;
       }
     }
