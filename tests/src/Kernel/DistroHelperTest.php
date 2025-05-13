@@ -25,6 +25,18 @@ class DistroHelperTest extends KernelTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  public function setUp(): void {
+    // Move the user.role.test_role config to the config sync folder.
+    // Get the config sync folder
+    $config_sync_dir = $this->configStorageSync->getSyncDirectory();
+    // Load the contents of the user.role.test_role file.
+    $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/install/user.role.test_role.yml');
+    $new_file = 'uuid: 12345647897894567894567894567894' . $new_file . PHP_EOL;
+    file_put_contents($config_sync_dir . '/user.role.test_role.yml', $new_file);
+  }
+  /**
    * Tests the update helper for UpdateExceptions.
    */
   public function testErrors() {
@@ -69,6 +81,24 @@ class DistroHelperTest extends KernelTestBase {
     catch (UpdateException $exception) {
       self::assertEquals($exception->getMessage(), 'Could not find a value nested at some_stuffing');
     }
+
+    // Failure 5: Re-pull simple config.
+    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    \Drupal::service('distro_helper.updates')->installConfig('distro_helper_test.test', 'distro_helper_test');
+    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    self::assertEquals($starting_uuid, $ending_uuid);
+
+    // Failure 6: Re-pull entity config.
+    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    \Drupal::service('distro_helper.updates')->installConfig('user.role.test_role', 'distro_helper_test', 'mock_install');
+    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    self::assertEquals($starting_uuid, $ending_uuid);
+
+    // Failure 6: Re-pull entity config, allowing update.
+    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    \Drupal::service('distro_helper.updates')->installConfig('user.role.test_role', 'distro_helper_test', 'mock_install', TRUE);
+    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    self::assertEquals($starting_uuid, $ending_uuid);
   }
 
 }
