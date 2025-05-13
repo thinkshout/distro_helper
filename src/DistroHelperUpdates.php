@@ -119,13 +119,19 @@ class DistroHelperUpdates {
       if ($entity) {
         if ($update) {
           $entity = $entity_storage->updateFromStorageRecord($entity, $value);
-          $this->setUuidFromSyncFolder($configName, $entity);
+          $entity->save();
           $updated[] = $id;
         }
       }
       else {
         $entity = $entity_storage->createFromStorageRecord($value);
-        $this->setUuidFromSyncFolder($configName, $entity);
+        $entity->save();
+        $config = $this->configManager->getConfigFactory()->getEditable($configName);
+        $sync_config = $this->configStorageSync->read($configName);
+        if (!empty($sync_config['uuid'])) {
+          $config->set('uuid', $sync_config['uuid']);
+        }
+        $config->save();
         $created[] = $id;
       }
     }
@@ -133,7 +139,12 @@ class DistroHelperUpdates {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
       $config = $this->configManager->getConfigFactory()->getEditable($configName);
       $config->setData($value);
-      $this->setUuidFromSyncFolder($configName, $config);
+      // If new config exists in sync, match up the uuids.
+      $sync_config = $this->configStorageSync->read($configName);
+      if (!empty($sync_config['uuid'])) {
+        $config->set('uuid', $sync_config['uuid']);
+      }
+      $config->save();
       $created[] = $configName;
     }
     // If possible, immediately export the updated files.
@@ -142,22 +153,6 @@ class DistroHelperUpdates {
       'updated' => $updated,
       'created' => $created,
     ];
-  }
-
-  /**
-   * Sets the UUID in the database based on the value in the sync folder.
-   *
-   * @param string $configName
-   *   The name of the configuration, like node.type.page, with no ".yml".
-   * @param \Drupal\Core\Config\ConfigEntityInterface $active_config
-   *   The active config entity.
-   */
-  private function setUuidFromSyncFolder($configName, $active_config) {
-    $sync_config = $this->configStorageSync->read($configName);
-    if (!empty($sync_config['uuid'])) {
-      $active_config->set('uuid', $sync_config['uuid']);
-    }
-    $active_config->save();
   }
 
   /**
