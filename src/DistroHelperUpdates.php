@@ -119,7 +119,7 @@ class DistroHelperUpdates {
       if ($entity) {
         if ($update) {
           $entity = $entity_storage->updateFromStorageRecord($entity, $value);
-          $this->setUuidFromSyncFolder($configName, $entity);
+          $entity->save();
           $updated[] = $id;
         }
       }
