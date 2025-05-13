@@ -1,0 +1,8 @@
+status: true
+dependencies: {  }
+id: test_role
+label: 'test role'
+weight: 10
+is_admin: null
+permissions:
+  - 'change own username'

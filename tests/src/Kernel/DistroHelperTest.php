@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\ckeditor\Kernel;
 
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Utility\UpdateException;
 use Drupal\KernelTests\KernelTestBase;
 
@@ -22,20 +23,9 @@ class DistroHelperTest extends KernelTestBase {
     'config',
     'distro_helper',
     'distro_helper_test',
+    'user',
   ];
 
-  /**
-   * {@inheritdoc}
-   */
-  public function setUp(): void {
-    // Move the user.role.test_role config to the config sync folder.
-    // Get the config sync folder
-    $config_sync_dir = $this->configStorageSync->getSyncDirectory();
-    // Load the contents of the user.role.test_role file.
-    $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/install/user.role.test_role.yml');
-    $new_file = 'uuid: 12345647897894567894567894567894' . $new_file . PHP_EOL;
-    file_put_contents($config_sync_dir . '/user.role.test_role.yml', $new_file);
-  }
   /**
    * Tests the update helper for UpdateExceptions.
    */
@@ -83,22 +73,25 @@ class DistroHelperTest extends KernelTestBase {
     }
 
     // Failure 5: Re-pull simple config.
-    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
     \Drupal::service('distro_helper.updates')->installConfig('distro_helper_test.test', 'distro_helper_test');
-    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
-    self::assertEquals($starting_uuid, $ending_uuid);
+    $ending_uuid = \Drupal::service('config.storage')->read('distro_helper_test.test')['uuid'] ?? '';
+    self::assertEquals('', $ending_uuid);
 
-    // Failure 6: Re-pull entity config.
-    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    // Load the contents of the user.role.test_role file.
+    $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/user.role.test_role.yml');
+    $data = Yaml::decode($new_file);
+    $data[ 'uuid' ] = '12345647897894567894567894567894';
+    \Drupal::service('config.storage.sync')->write('user.role.test_role', $data);
+
+    // Failure 6: Install config entity and verify config matches sync config uuid.
     \Drupal::service('distro_helper.updates')->installConfig('user.role.test_role', 'distro_helper_test', 'mock_install');
-    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
-    self::assertEquals($starting_uuid, $ending_uuid);
+    $ending_uuid = \Drupal::service('config.storage')->read('user.role.test_role')['uuid'] ?? '';
+    self::assertEquals($data[ 'uuid' ], $ending_uuid);
 
-    // Failure 6: Re-pull entity config, allowing update.
-    $starting_uuid = $this->configStorageSync->read('distro_helper_test.test');
+    // Failure 6: Re-pull entity config, allowing update, and verify config matches sync config uuid.
     \Drupal::service('distro_helper.updates')->installConfig('user.role.test_role', 'distro_helper_test', 'mock_install', TRUE);
-    $ending_uuid = $this->configStorageSync->read('distro_helper_test.test');
-    self::assertEquals($starting_uuid, $ending_uuid);
+    $ending_uuid = \Drupal::service('config.storage')->read('user.role.test_role')['uuid'] ?? '';
+    self::assertEquals($data[ 'uuid' ], $ending_uuid);
   }
 
 }
