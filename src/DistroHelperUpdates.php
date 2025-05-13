@@ -119,13 +119,13 @@ class DistroHelperUpdates {
       if ($entity) {
         if ($update) {
           $entity = $entity_storage->updateFromStorageRecord($entity, $value);
-          $this->setUUIDFromSyncFolder($configName, $entity);
+          $this->setUuidFromSyncFolder($configName, $entity);
           $updated[] = $id;
         }
       }
       else {
         $entity = $entity_storage->createFromStorageRecord($value);
-        $this->setUUIDFromSyncFolder($configName, $entity);
+        $this->setUuidFromSyncFolder($configName, $entity);
         $created[] = $id;
       }
     }
@@ -133,7 +133,7 @@ class DistroHelperUpdates {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
       $config = $this->configManager->getConfigFactory()->getEditable($configName);
       $config->setData($value);
-      $this->setUUIDFromSyncFolder($configName, $config);
+      $this->setUuidFromSyncFolder($configName, $config);
       $created[] = $configName;
     }
     // If possible, immediately export the updated files.
@@ -152,7 +152,7 @@ class DistroHelperUpdates {
    * @param \Drupal\Core\Config\ConfigEntityInterface $active_config
    *   The active config entity.
    */
-  private function setUUIDFromSyncFolder($configName, $active_config) {
+  private function setUuidFromSyncFolder($configName, $active_config) {
     $sync_config = $this->configStorageSync->read($configName);
     if (!empty($sync_config['uuid'])) {
       $active_config->set('uuid', $sync_config['uuid']);
