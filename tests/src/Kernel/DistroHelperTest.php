@@ -89,7 +89,6 @@ class DistroHelperTest extends KernelTestBase {
     $ending_uuid = \Drupal::service('config.storage')->read('user.role.test_role')['uuid'] ?? '';
     self::assertEquals($data['uuid'], $ending_uuid);
 
-
     // Load the contents of the user.role.test_role file.
     $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/user.role.test_role.yml');
     $data = Yaml::decode($new_file);
