@@ -119,21 +119,13 @@ class DistroHelperUpdates {
       if ($entity) {
         if ($update) {
           $entity = $entity_storage->updateFromStorageRecord($entity, $value);
-          $sync_config = $this->configStorageSync->read($configName);
-          if (!empty($sync_config['uuid'])) {
-            $entity->set('uuid', $sync_config['uuid']);
-          }
-          $entity->save();
+          $this->setUUIDFromSyncFolder($configName, $entity);
           $updated[] = $id;
         }
       }
       else {
         $entity = $entity_storage->createFromStorageRecord($value);
-        $sync_config = $this->configStorageSync->read($configName);
-        if (!empty($sync_config['uuid'])) {
-          $entity->set('uuid', $sync_config['uuid']);
-        }
-        $entity->save();
+        $this->setUUIDFromSyncFolder($configName, $entity);
         $created[] = $id;
       }
     }
@@ -141,12 +133,7 @@ class DistroHelperUpdates {
       $value['_core']['default_config_hash'] = Crypt::hashBase64(serialize($value));
       $config = $this->configManager->getConfigFactory()->getEditable($configName);
       $config->setData($value);
-      // If new config exists in sync, match up the uuids.
-      $sync_config = $this->configStorageSync->read($configName);
-      if (!empty($sync_config['uuid'])) {
-        $config->set('uuid', $sync_config['uuid']);
-      }
-      $config->save();
+      $this->setUUIDFromSyncFolder($configName, $config);
       $created[] = $configName;
     }
     // If possible, immediately export the updated files.
@@ -155,6 +142,22 @@ class DistroHelperUpdates {
       'updated' => $updated,
       'created' => $created,
     ];
+  }
+
+  /**
+   * Sets the UUID in the database based on the value in the sync folder.
+   *
+   * @param string $configName
+   *   The name of the configuration, like node.type.page, with no ".yml".
+   * @param \Drupal\Core\Config\ConfigEntityInterface $active_config
+   *   The active config entity.
+   */
+  private function setUUIDFromSyncFolder($configName, $active_config) {
+    $sync_config = $this->configStorageSync->read($configName);
+    if (!empty($sync_config['uuid'])) {
+      $active_config->set('uuid', $sync_config['uuid']);
+    }
+    $active_config->save();
   }
 
   /**
