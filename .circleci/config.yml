@@ -12,7 +12,7 @@ jobs:
       - image: mariadb:10.4
         environment:
           MYSQL_RANDOM_ROOT_PASSWORD: 1
-          MYSQL_DATABASE: circletest
+          MYSQL_DATABASE: circle_test
           MYSQL_USER: drupal
           MYSQL_PASSWORD: drupal
     working_directory: /var/www/html/distro_helper

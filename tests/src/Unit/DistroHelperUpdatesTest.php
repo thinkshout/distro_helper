@@ -72,6 +72,7 @@ class DistroHelperUpdatesTest extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp(): void {
+    parent::setUp();
     $config_manager = $this->prophesize(ConfigManagerInterface::class);
     $config_storage_sync = $this->prophesize(StorageInterface::class);
     $config_storage = $this->prophesize(CachedStorage::class);

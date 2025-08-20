@@ -6,7 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\StorageInterface;
 
 /**
- * Provides a service to help with config management in distros on install.
+ * Provides a service to help with config management in distributions on install.
  */
 class DistroHelperInstall {
 

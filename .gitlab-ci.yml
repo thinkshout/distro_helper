@@ -25,8 +25,8 @@ include:
 ################
 variables:
   _CSPELL_WORDS:
-    value: 'mariacha, bdimaggio, gcb'
-    description: 'Personal names and other irregular words to not mark as incorrect.'
+    value: 'mariacha, bdimaggio, gcb, weeeeee'
+    description: 'User names, whimsical words found in tests, etc.'
 
   OPT_IN_TEST_PREVIOUS_MAJOR: 1
   OPT_IN_TEST_PREVIOUS_MINOR: 1

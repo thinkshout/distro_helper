@@ -13,7 +13,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\UpdateException;
 
 /**
- * Provides a service to help with configuration management in distros.
+ * Provides a service to help with configuration management in distributions.
  */
 class DistroHelperUpdates {
 

@@ -31,7 +31,7 @@ If you run an update hook multiple times for testing purposes or on multiple env
 Usage for this services is:
 
 ```php
-\Drupal::service('distro_helper.updates')->installConfig($configid, $modulename, $dirname);
+\Drupal::service('distro_helper.updates')->installConfig($config_id, $modulename, $dirname);
 ```
 
 ### updateConfig (distro_helper.updates)
@@ -43,7 +43,7 @@ It works much like installConfig, but you need to pass in a "$targets" variable 
 Usage for this services is:
 
 ```php
-\Drupal::service('distro_helper.updates')->updateConfig($configid, $targets, $modulename, $dirname);
+\Drupal::service('distro_helper.updates')->updateConfig($config_id, $targets, $modulename, $dirname);
 ```
 
 ### syncUuids (distro_helper.install)
