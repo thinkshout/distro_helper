@@ -27,6 +27,7 @@ variables:
   _CSPELL_WORDS:
     value: 'mariacha, bdimaggio, gcb, weeeeee'
     description: 'User names, whimsical words found in tests, etc.'
+  _PHPSTAN_BASELINE_FILENAME: 'phpstan.neon.dist'
 
   OPT_IN_TEST_PREVIOUS_MAJOR: 1
   OPT_IN_TEST_PREVIOUS_MINOR: 1
