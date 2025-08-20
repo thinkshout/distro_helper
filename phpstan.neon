@@ -15,4 +15,4 @@ parameters:
     # except for the lines below.
     bootstrapFiles:
         # Load aliases.
-        - lib/Drupal/Core/Serialization/Yaml.php
+        - ../../core/lib/Drupal/Core/Serialization/Yaml.php
