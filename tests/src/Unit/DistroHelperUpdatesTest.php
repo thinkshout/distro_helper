@@ -200,11 +200,4 @@ class DistroHelperUpdatesTest extends UnitTestCase {
     ], 'Part of a bad, but harmless, update succeeded.');
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function tearDown(): void {
-    unset($this->distroHelperUpdates);
-  }
-
 }
