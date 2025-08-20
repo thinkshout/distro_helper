@@ -12,7 +12,6 @@ use Drupal\KernelTests\KernelTestBase;
  * @group distro_helper
  */
 class DistroHelperTest extends KernelTestBase {
-
   /**
    * Modules to enable.
    *
@@ -30,6 +29,9 @@ class DistroHelperTest extends KernelTestBase {
    * Tests the update helper for UpdateExceptions.
    */
   public function testErrors() {
+    $module_path = $this->container->get('extension.path.resolver')->getPath('module', 'distro_helper_test');
+    $module_directory = $this->container->get('module_handler')->getModule('distro_helper_test')->getPath();
+
     try {
       // Failure 1: config does not exist in active config.
       \Drupal::service('distro_helper.updates')
@@ -48,7 +50,7 @@ class DistroHelperTest extends KernelTestBase {
       ], 'distro_helper_test', 'install');
     }
     catch (UpdateException $exception) {
-      self::assertEquals($exception->getMessage(), 'Config file not found at modules/contrib/distro_helper/tests/modules/distro_helper_test/config/install/distro_helper_test.test_missing.yml');
+      self::assertEquals($exception->getMessage(), 'Config file not found at ' . $module_path . '/config/install/distro_helper_test.test_missing.yml');
     }
 
     try {
@@ -58,7 +60,7 @@ class DistroHelperTest extends KernelTestBase {
       ], 'distro_helper_test', 'mock_install');
     }
     catch (UpdateException $exception) {
-      self::assertEquals($exception->getMessage(), 'Invalid YAML file modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/distro_helper_test.invalid.yml');
+      self::assertEquals($exception->getMessage(), 'Invalid YAML file ' . $module_path . '/config/mock_install/distro_helper_test.invalid.yml');
     }
 
     // Failure 4: key does not exist in config.
@@ -78,7 +80,7 @@ class DistroHelperTest extends KernelTestBase {
     self::assertEquals('', $ending_uuid);
 
     // Load the contents of the user.role.test_role file.
-    $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/user.role.test_role.yml');
+    $new_file = file_get_contents($module_directory . '/config/mock_install/user.role.test_role.yml');
     $data = Yaml::decode($new_file);
     $original_uuid = $data['uuid'] = '12345647897894567894567894567894';
     \Drupal::service('config.storage.sync')->write('user.role.test_role', $data);
