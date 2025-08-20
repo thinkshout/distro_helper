@@ -14,21 +14,21 @@ use Drupal\KernelTests\KernelTestBase;
  */
 class DistroHelperTest extends KernelTestBase {
 
-    /**
-     * The extension path resolver.
-     *
-     * @var \Drupal\Core\Extension\ExtensionPathResolver
-     */
-    protected $extensionPathResolver;
+  /**
+   * The extension path resolver.
+   *
+   * @var \Drupal\Core\Extension\ExtensionPathResolver
+   */
+  protected $extensionPathResolver;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void {
-        parent::setUp();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(): void {
+    parent::setUp();
 
-        $this->extensionPathResolver = $this->prophesize(ExtensionPathResolver::class);
-    }
+    $this->extensionPathResolver = $this->prophesize(ExtensionPathResolver::class);
+  }
 
   /**
    * Modules to enable.
