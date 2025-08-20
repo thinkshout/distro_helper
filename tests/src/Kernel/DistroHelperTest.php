@@ -30,7 +30,7 @@ class DistroHelperTest extends KernelTestBase {
    */
   public function testErrors() {
     $module_path = $this->container->get('extension.path.resolver')->getPath('module', 'distro_helper_test');
-    $module_directory = $this->container->get('module_handler')->getModule('distro_helper_test');
+    $module_directory = $this->container->get('module_handler')->getModule('distro_helper_test')->getPath();
 
     try {
       // Failure 1: config does not exist in active config.
