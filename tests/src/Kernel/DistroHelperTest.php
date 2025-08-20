@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\ckeditor\Kernel;
 
+use Drupal\Core\Extension\ExtensionPathResolver;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Utility\UpdateException;
 use Drupal\KernelTests\KernelTestBase;
@@ -12,6 +13,22 @@ use Drupal\KernelTests\KernelTestBase;
  * @group distro_helper
  */
 class DistroHelperTest extends KernelTestBase {
+
+    /**
+     * The extension path resolver.
+     *
+     * @var \Drupal\Core\Extension\ExtensionPathResolver
+     */
+    protected $extensionPathResolver;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp(): void {
+        parent::setUp();
+
+        $this->extensionPathResolver = $this->prophesize(ExtensionPathResolver::class);
+    }
 
   /**
    * Modules to enable.
@@ -48,7 +65,7 @@ class DistroHelperTest extends KernelTestBase {
       ], 'distro_helper_test', 'install');
     }
     catch (UpdateException $exception) {
-      self::assertEquals($exception->getMessage(), 'Config file not found at modules/contrib/distro_helper/tests/modules/distro_helper_test/config/install/distro_helper_test.test_missing.yml');
+      self::assertEquals($exception->getMessage(), 'Config file not found at ' . $this->extensionPathResolver->getPath('module', 'distro_helper') . '/tests/modules/distro_helper_test/config/install/distro_helper_test.test_missing.yml');
     }
 
     try {
@@ -58,7 +75,7 @@ class DistroHelperTest extends KernelTestBase {
       ], 'distro_helper_test', 'mock_install');
     }
     catch (UpdateException $exception) {
-      self::assertEquals($exception->getMessage(), 'Invalid YAML file modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/distro_helper_test.invalid.yml');
+      self::assertEquals($exception->getMessage(), 'Invalid YAML file ' . $this->extensionPathResolver->getPath('module', 'distro_helper') . '/tests/modules/distro_helper_test/config/mock_install/distro_helper_test.invalid.yml');
     }
 
     // Failure 4: key does not exist in config.
@@ -78,7 +95,7 @@ class DistroHelperTest extends KernelTestBase {
     self::assertEquals('', $ending_uuid);
 
     // Load the contents of the user.role.test_role file.
-    $new_file = file_get_contents(DRUPAL_ROOT . '/modules/contrib/distro_helper/tests/modules/distro_helper_test/config/mock_install/user.role.test_role.yml');
+    $new_file = file_get_contents($this->extensionPathResolver->getPath('module', 'distro_helper') . '/tests/modules/distro_helper_test/config/mock_install/user.role.test_role.yml');
     $data = Yaml::decode($new_file);
     $original_uuid = $data['uuid'] = '12345647897894567894567894567894';
     \Drupal::service('config.storage.sync')->write('user.role.test_role', $data);

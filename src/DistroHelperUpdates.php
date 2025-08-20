@@ -245,7 +245,7 @@ class DistroHelperUpdates {
   private function loadConfigFromModule(string $configName, string $module, string $directory = 'install') {
     $file = $this->extensionPathResolver->getPath('module', $module) . '/config/' . $directory . '/' . $configName . '.yml';
     try {
-      $raw = file_get_contents($file);
+      $raw = @file_get_contents($file);
     }
     catch (\Exception $exception) {
       // Catch for unit tests, which throw an exception.
